@@ -26,10 +26,8 @@ public class Function {
         String body = request.getBody().orElse(null);
 
         String decodedBody = URLDecoder.decode(body, "UTF-8");
-        for (String param :
-                decodedBody.split("&")) {
-            System.out.println(param);
-        }
+
+        new Order(decodedBody);
 
 //        String name = request.getBody().orElse(query);
 //        if (name == null) {
