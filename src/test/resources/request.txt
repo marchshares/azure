@@ -1,0 +1,35 @@
+Form=Cart
+Name=Тимур Сайярович Хафизов
+Phone=+7 (916) 070-9365
+Email=direct-8bars@yandex.ru
+deliveryType=Доставка курьером (Москва, Спб) 300 руб. = 300
+city=Москва
+deliveryAddress=Зоологическая 12, корп. 1, кв. 66
+comment=commnet
+payment[sys]=none
+payment[systranid]=0
+payment[orderid]=1214681071
+
+payment[products][0][name]=Nanopresso NS-адаптер
+payment[products][0][quantity]=1
+payment[products][0][amount]=1300
+payment[products][0][price]=1300
+
+payment[products][1][name]=Minipresso GR
+payment[products][1][quantity]=1
+payment[products][1][amount]=4500
+payment[products][1][price]=4500
+
+payment[products][2][name]=Nanopresso Set
+payment[products][2][quantity]=1
+payment[products][2][amount]=8650
+payment[products][2][price]=8650
+
+payment[products][2][sku]=Артикул NPGSВ наличииБренд: Wacaco
+payment[products][2][options][0][option]=Аксессуар (скидка 10%)
+payment[products][2][options][0][price]=8650
+payment[products][2][options][0][variant]=Barista Kit+NS-адаптер
+payment[amount]=14750
+COOKIES=ipp_uid2=P5mUaYZWG1rREMYM/agE7rK8yC7QfHrL9//9ImQ==; ipp_uid1=1525430880480; tildauid=1525430883277.471390; _ga=GA1.2.1017251606.1525430883; _ym_uid=152543088332406566; _ym_d=1530655841; rerf=AAAAAFueXUCOB82SA6GHAg==; _gid=GA1.2.98435159.1537105220; _ym_isad=1; _ym_visorc_44688592=w; _gat=1; tildasid=1537111335138.878847; previousUrl=8bars.ru%2Ftilda%2Fcart%2Fadd%2F66671186-1521897288438
+formid=form42581206
+formname=Cart
