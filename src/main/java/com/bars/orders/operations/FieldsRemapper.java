@@ -22,6 +22,7 @@ public class FieldsRemapper {
     }
 
     public void remapDelivery(Order order) {
+        log.info("Remap delivery for " + order.getOrderId());
         JSONObject jsonObject = order.getHead();
 
         String deliveryType = jsonObject.getString("deliveryType");

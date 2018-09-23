@@ -58,4 +58,15 @@ public class Product extends AbstractObject {
 
         return new Product(jsonObject, context);
     }
+
+    public Product makeCopy() {
+        JSONObject jsonObject = new JSONObject();
+
+        jsonObject.put("name",      getName());
+        jsonObject.put("quantity",  getQuantity());
+        jsonObject.put("price",     getPrice());
+        jsonObject.put("amount",    getAmount());
+
+        return new Product(jsonObject, context);
+    }
 }

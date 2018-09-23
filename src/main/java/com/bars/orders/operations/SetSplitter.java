@@ -48,6 +48,7 @@ public class SetSplitter {
     }
 
     public void splitSets(Order order) {
+        log.info("Split sets for " + order.getOrderId());
         List<Product> result = Lists.newArrayList();
 
         order.getProducts().forEach(product -> {
