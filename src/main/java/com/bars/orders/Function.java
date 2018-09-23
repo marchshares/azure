@@ -6,7 +6,8 @@ import java.util.*;
 import java.util.logging.Logger;
 
 import com.bars.orders.json.Order;
-import com.bars.orders.json.SetSplitter;
+import com.bars.orders.operations.FieldsRemapper;
+import com.bars.orders.operations.SetSplitter;
 import com.microsoft.azure.functions.annotation.*;
 import com.microsoft.azure.functions.*;
 
@@ -39,12 +40,15 @@ public class Function {
         String decodedBody = URLDecoder.decode(body, "UTF-8");
 
         order = new Order(decodedBody, context);
+        log.info("Received order " + order.getOrderId());
+
         System.out.println(order);
 
-        SetSplitter splitter = new SetSplitter(context);
+        new SetSplitter(context)
+                .splitSets(order);
 
-        splitter.splitSets(order);
-
+        new FieldsRemapper(context)
+                .remapDelivery(order);
 
         System.out.println(order);
         return request.createResponseBuilder(HttpStatus.OK).body("Hello!").build();

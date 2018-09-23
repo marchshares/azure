@@ -1,7 +1,9 @@
-package com.bars.orders.json;
+package com.bars.orders.operations;
 
 
 import com.bars.orders.Utils;
+import com.bars.orders.json.Order;
+import com.bars.orders.json.Product;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.microsoft.azure.functions.ExecutionContext;

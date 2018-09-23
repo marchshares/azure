@@ -46,4 +46,8 @@ public class Order extends AbstractObject {
 
         payment.put("products", jsonArray);
     }
+
+    public String getOrderId() {
+        return getPayment().getString("orderid");
+    }
 }

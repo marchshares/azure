@@ -7,16 +7,21 @@ import org.json.JSONObject;
 import java.util.logging.Logger;
 
 public abstract class AbstractObject {
-    protected final Logger log;
-    protected final ExecutionContext context;
+    final Logger log;
+
+    final ExecutionContext context;
 
     protected final JSONObject head;
 
-    protected AbstractObject(JSONObject head, ExecutionContext context) {
+    AbstractObject(JSONObject head, ExecutionContext context) {
         this.head = head;
 
         this.context = context;
         this.log = context.getLogger();
+    }
+
+    public JSONObject getHead() {
+        return head;
     }
 
     public Logger getLogger() {
