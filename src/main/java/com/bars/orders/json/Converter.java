@@ -1,4 +1,5 @@
-package com.test;
+package com.bars.orders.json;
+
 
 import org.json.JSONArray;
 import org.json.JSONObject;

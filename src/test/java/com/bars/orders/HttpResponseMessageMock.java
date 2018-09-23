@@ -1,4 +1,4 @@
-package com.test;
+package com.bars.orders;
 
 import com.microsoft.azure.functions.*;
 
