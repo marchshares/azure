@@ -92,17 +92,6 @@ public class Order extends AbstractObject {
                         }
                     });
 
-//                    jsonObject.names().forEach(name -> {
-//                        String nameStr = (String) name;
-//                        String value = jsonObject.getString(nameStr);
-//
-//                        try {
-//                            jsonObject.put(nameStr, URLEncoder.encode(value, "UTF-8"));
-//                        } catch (UnsupportedEncodingException e) {
-//                            log.warning(e.getMessage());
-//                        }
-//                    });
-
                     arr.put(jsonObject);
                 });
 

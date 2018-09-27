@@ -14,6 +14,7 @@ import org.json.JSONObject;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -55,7 +56,7 @@ public class SetSplitter {
             String name = product.getName();
 
             if (StringUtils.isEmpty(name)) {
-                log.warning("Product has empty name: " + product);
+                log.log(Level.WARNING, "Product has empty name: " + product);
                 return;
             }
 
@@ -81,7 +82,7 @@ public class SetSplitter {
                 return processNanoPatrolSet(product);
 
             default:
-                log.warning(name + " is unknown Set!");
+                log.log(Level.WARNING, name + " is unknown Set!");
         }
 
         return Lists.newArrayList(product);
@@ -104,7 +105,7 @@ public class SetSplitter {
                     String variant = option.getString("variant");
 
                     if (StringUtils.isEmpty(variant)) {
-                        log.warning("Variant is empty for option: " + Utils.toString(option));
+                        log.log(Level.WARNING, "Variant is empty for option: " + Utils.toString(option));
                         return;
                     }
 
@@ -113,7 +114,7 @@ public class SetSplitter {
                         result.addAll(subComponents);
 
                     } else {
-                        log.warning("Unknown " + setName + " option: " + Utils.toString(option));
+                        log.log(Level.WARNING, "Unknown " + setName + " option: " + Utils.toString(option));
                     }
 
                 });
@@ -135,7 +136,7 @@ public class SetSplitter {
                     String variant = option.getString("variant");
 
                     if (StringUtils.isEmpty(variant)) {
-                        log.warning("Variant is empty for option: " + Utils.toString(option));
+                        log.log(Level.WARNING, "Variant is empty for option: " + Utils.toString(option));
                         return;
                     }
 
@@ -153,7 +154,7 @@ public class SetSplitter {
                         result.addAll(subComponents);
 
                     } else {
-                        log.warning("Unknown " + setName + " option: " + Utils.toString(option));
+                        log.log(Level.WARNING, "Unknown " + setName + " option: " + Utils.toString(option));
                     }
 
                 });

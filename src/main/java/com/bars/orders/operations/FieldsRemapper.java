@@ -4,6 +4,7 @@ import com.bars.orders.json.Order;
 import com.microsoft.azure.functions.ExecutionContext;
 import org.json.JSONObject;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static java.lang.String.valueOf;
@@ -51,7 +52,7 @@ public class FieldsRemapper {
             jsonObject.put("deliveryClientCost", UNDEFINED_VALUE);
 
         } else {
-            log.warning("Unknown delivery type: " + deliveryType);
+            log.log(Level.WARNING, "Unknown delivery type: " + deliveryType);
             return;
         }
     }
