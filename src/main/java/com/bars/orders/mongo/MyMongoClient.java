@@ -15,11 +15,13 @@ import java.util.logging.Logger;
 public class MyMongoClient {
     private final Logger logger;
 
-    private final MongoCollection<Document> ordersIdsCol;
+    private MongoCollection<Document> ordersIdsCol;
 
     public MyMongoClient(Logger logger) {
         this.logger = logger;
+    }
 
+    public void init() {
         String uri = System.getenv("MongoURI");
 //        logger.info("Connectiong to Mongo..., uri: " + uri);
         MongoClient mongoClient = new MongoClient(new MongoClientURI(uri));

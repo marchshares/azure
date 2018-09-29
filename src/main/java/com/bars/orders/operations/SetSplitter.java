@@ -72,20 +72,39 @@ public class SetSplitter {
 
 
     private List<Product> processSet(Product product) {
-        String name = product.getName();
+        String shortSetName = product.getName();
 
-        switch (name) {
+        List<Product> setComponents;
+        switch (shortSetName) {
             case NANO_GREY_SET_NAME:
-                return processNanoGreySet(product);
+                setComponents = processNanoGreySet(product);
+                break;
 
             case NANO_PATROL_SET_NAME:
-                return processNanoPatrolSet(product);
+                setComponents = processNanoPatrolSet(product);
+                break;
 
             default:
-                log.log(Level.WARNING, name + " is unknown Set!");
+                log.log(Level.WARNING, shortSetName + " is unknown Set!");
+                return Lists.newArrayList(product);
         }
 
-        return Lists.newArrayList(product);
+        putSetName(shortSetName, setComponents);
+
+        return setComponents;
+    }
+
+    private void putSetName(String setShortName, List<Product> setComponents) {
+        List<String> collect = setComponents.stream()
+                .map(Product::getName)
+                .collect(Collectors.toList());
+
+        String joinNames = String.join(", ", collect);
+
+        String setName = setShortName + " (" + joinNames + ")";
+
+        setComponents
+                .forEach(component -> component.setSetName(setName));
     }
 
     private List<Product> processNanoGreySet(Product setAsProduct) {

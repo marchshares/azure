@@ -28,6 +28,10 @@ public abstract class AbstractObject {
         return log;
     }
 
+    public String toJson() {
+        return head.toString();
+    }
+
     @Override
     public String toString() {
         return head.toString(1);

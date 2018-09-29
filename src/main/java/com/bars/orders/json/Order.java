@@ -6,13 +6,10 @@ import com.microsoft.azure.functions.ExecutionContext;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 import static com.google.common.collect.ImmutableMap.of;
@@ -21,20 +18,25 @@ public class Order extends AbstractObject {
 
     private final JSONObject payment;
     private List<Product> products;
-    private final SimpleDateFormat dateFormat;
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+    static {
+        dateFormat.setTimeZone(TimeZone.getTimeZone("Europe/Moscow"));
+    }
 
     public Order(String bodyLine, ExecutionContext context) {
         super(new Converter().bodyLineToJsonObject(bodyLine), context);
 
         this.payment = head.getJSONObject("payment");
-        this.dateFormat = new SimpleDateFormat("dd.MM.yyyy");
-
-        head.put("date", dateFormat.format(new Date()));
 
         this.products = Utils.jsonArrayToStream(payment.getJSONArray("products"))
                 .map(obj -> (JSONObject) obj)
                 .map(jsonObject -> new Product(jsonObject, context))
                 .collect(Collectors.toList());;
+
+        String[] dateTimeValue = dateFormat.format(new Date()).split(" ");
+
+        head.put("date", dateTimeValue[0]);
+        head.put("time", dateTimeValue[1]);
     }
 
     public JSONObject getPayment() {

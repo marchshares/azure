@@ -37,6 +37,10 @@ public class Function {
         this.myMongoClient = new MyMongoClient(logger);
     }
 
+    public void setMyMongoClient(MyMongoClient myMongoClient) {
+        this.myMongoClient = myMongoClient;
+    }
+
 
     public void setZapierProductsUrl(String zapierProductsUrl) {
         this.zapierProductsUrl = zapierProductsUrl;
@@ -46,7 +50,12 @@ public class Function {
         return order;
     }
 
+    public void init() {
+        myMongoClient.init();
+    }
+
     public HttpResponseMessage run() {
+
         logger.info("Received new HTTP request");
 
         String body = request.getBody().orElse(null);
@@ -68,13 +77,14 @@ public class Function {
                 new SetSplitter(context).splitSets(order);
                 new FieldsRemapper(context).remapDelivery(order);
 
-                sendPost(zapierProductsUrl, order.toArrayJson());
+                sendPost(zapierProductsUrl, order.toJson());
 
             } else {
                 logger.log(Level.WARNING, "Received the same order " + orderId + ". Will skip");
             }
 
         } catch (Exception e) {
+
             logger.log(Level.WARNING, "Couldn't process request. Error msg: " + e.getMessage(), e);
 
             return request.createResponseBuilder(HttpStatus.OK).body("Dummy done").build();
@@ -84,6 +94,11 @@ public class Function {
     }
 
     public void sendPost(String url, String body) {
+        if (url == null) {
+            logger.warning("URL is null. Request wasn't send");
+            return;
+        }
+
         try {
             URLConnection con = new URL(url).openConnection();
             HttpURLConnection http = (HttpURLConnection) con;

@@ -1,5 +1,7 @@
 package com.bars.orders;
 
+import com.bars.orders.mongo.MyMongoClient;
+import com.google.common.collect.Lists;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -14,9 +16,7 @@ import java.util.logging.Logger;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 
 
 /**
@@ -40,25 +40,28 @@ public class FunctionTest {
         final Optional<String> queryBody = Optional.of(body);
         doReturn(queryBody).when(req).getBody();
 
-        doAnswer(new Answer<HttpResponseMessage.Builder>() {
-            @Override
-            public HttpResponseMessage.Builder answer(InvocationOnMock invocation) {
-                HttpStatus status = (HttpStatus) invocation.getArguments()[0];
-                return new HttpResponseMessageMock.HttpResponseMessageBuilderMock().status(status);
-            }
+        doAnswer((Answer<HttpResponseMessage.Builder>) invocation -> {
+            HttpStatus status = (HttpStatus) invocation.getArguments()[0];
+            return new HttpResponseMessageMock.HttpResponseMessageBuilderMock().status(status);
         }).when(req).createResponseBuilder(any(HttpStatus.class));
 
         final ExecutionContext context = mock(ExecutionContext.class);
         doReturn(Logger.getGlobal()).when(context).getLogger();
 
+        MyMongoClient mongoClient = mock(MyMongoClient.class);
+        when(mongoClient.getOrderIds()).thenReturn(Lists.newArrayList());
+
         // Invoke
         Function httpFunc = new Function(req, context);
         httpFunc.setZapierProductsUrl(TEST_URL);
+        httpFunc.setMyMongoClient(mongoClient);
 
-        final HttpResponseMessage ret = httpFunc.run();
+        httpFunc.init();
+
+        final HttpResponseMessage res = httpFunc.run();
 
         // Verify
-        assertEquals(ret.getStatus(), HttpStatus.OK);
+        assertEquals(res.getStatus(), HttpStatus.OK);
         assertEquals(httpFunc.getOrder().getProducts().size(), 7);
     }
 }

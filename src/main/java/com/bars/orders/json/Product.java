@@ -37,8 +37,23 @@ public class Product extends AbstractObject {
         return options;
     }
 
+    public boolean isSetComponent() {
+        return head.has("isSet") && head.getBoolean("isSet");
+    }
+
+    public boolean isMainSetComponent() {
+        return head.has("mainSetComponent") && head.getBoolean("mainSetComponent");
+    }
+
+    public void setSetName(String setName) {
+        head.put("setName", setName);
+    }
+
     public Product createMainSetComponent(String componentName) {
         JSONObject jsonObject = new JSONObject();
+
+        jsonObject.put("isSet", true);
+        jsonObject.put("mainSetComponent", true);
 
         jsonObject.put("name",      componentName);
         jsonObject.put("quantity",  getQuantity());
@@ -50,6 +65,9 @@ public class Product extends AbstractObject {
 
     public Product createSetComponent(String componentName) {
         JSONObject jsonObject = new JSONObject();
+
+        jsonObject.put("isSet", true);
+        jsonObject.put("mainSetComponent", false);
 
         jsonObject.put("name",      componentName);
         jsonObject.put("quantity",  getQuantity());
