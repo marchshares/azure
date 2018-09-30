@@ -74,8 +74,7 @@ public class Function {
                 logger.info("Received new order " + orderId);
                 myMongoClient.addOrder(orderId);
 
-                new SetSplitter(context).splitSets(order);
-                new FieldsRemapper(context).remapDelivery(order);
+                processOrder();
 
                 sendPost(zapierProductsUrl, order.toJson());
 
@@ -91,6 +90,16 @@ public class Function {
         }
 
         return request.createResponseBuilder(HttpStatus.OK).body("Done").build();
+    }
+
+    public void processOrder() {
+        new SetSplitter(context).splitSets(order);
+        FieldsRemapper fieldsRemapper = new FieldsRemapper(context);
+
+        fieldsRemapper.remapDelivery(order);
+        fieldsRemapper.remapProductNames(order);
+
+        fieldsRemapper.setOrderDescription(order);
     }
 
     public void sendPost(String url, String body) {

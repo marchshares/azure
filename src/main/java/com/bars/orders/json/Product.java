@@ -1,9 +1,13 @@
 package com.bars.orders.json;
 
 
+import com.google.common.collect.Streams;
 import com.microsoft.azure.functions.ExecutionContext;
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import static com.bars.orders.operations.FieldsRemapper.mapRUColorOnEngColor;
+import static com.bars.orders.operations.SetSplitter.COLOR_NAME_MARK;
 
 public class Product extends AbstractObject {
 
@@ -14,11 +18,35 @@ public class Product extends AbstractObject {
 
         if (head.has("options")) {
             this.options = head.getJSONArray("options");
+
+            Streams.stream(options)
+                    .map(option -> (JSONObject) option)
+                    .filter(option -> option.has("option") && option.getString("option").equals(COLOR_NAME_MARK))
+                    .map(option -> option.getString("variant"))
+                    .map(mapRUColorOnEngColor::get)
+                    .findFirst()
+                    .ifPresent(color -> head.put("color", color));
         }
     }
 
     public String getName() {
         return head.getString("name");
+    }
+
+    public void setName(String name) {
+        head.put("name", name);
+    }
+
+    public boolean hasColor() {
+        return head.has("color");
+    }
+
+    public String getColor() {
+        if (hasColor()) {
+            return head.getString("color");
+        }
+
+        return null;
     }
 
     public String getAmount() {
@@ -49,6 +77,10 @@ public class Product extends AbstractObject {
         head.put("setName", setName);
     }
 
+    public String getSetName() {
+        return head.has("setName") ? head.getString("setName") : "";
+    }
+
     public Product createMainSetComponent(String componentName) {
         JSONObject jsonObject = new JSONObject();
 
@@ -59,6 +91,10 @@ public class Product extends AbstractObject {
         jsonObject.put("quantity",  getQuantity());
         jsonObject.put("price",     getPrice());
         jsonObject.put("amount",    getAmount());
+
+        if (hasColor()) {
+            jsonObject.put("color", getColor());
+        }
 
         return new Product(jsonObject, context);
     }

@@ -64,6 +64,10 @@ public class Order extends AbstractObject {
     }
 
 
+    public void setOrderDescription(String orderDescription) {
+        head.put("orderDescription", orderDescription);
+    }
+
     public String toArrayJson(){
         JSONArray arr = new JSONArray();
         products.stream()
