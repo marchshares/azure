@@ -24,7 +24,7 @@ import static org.mockito.Mockito.*;
  */
 @Ignore
 public class FunctionTest {
-//    public static final String TEST_URL = "https://hooks.zapier.com/hooks/catch/3017336/l4xlkz/";
+
     public static final String TEST_URL = "https://webhook.site/d230a41e-8ea7-4bde-9a9b-5a1515ddab98";
 
 //    private final String body = "Form=Cart&Name=%D0%A2%D0%B8%D0%BC%D1%83%D1%80+%D0%A1%D0%B0%D0%B9%D1%8F%D1%80%D0%BE%D0%B2%D0%B8%D1%87+%D0%A5%D0%B0%D1%84%D0%B8%D0%B7%D0%BE%D0%B2&Phone=%2B7+%28916%29+070-9365&Email=direct-8bars%40yandex.ru&deliveryType=%D0%94%D0%BE%D1%81%D1%82%D0%B0%D0%B2%D0%BA%D0%B0+%D0%BA%D1%83%D1%80%D1%8C%D0%B5%D1%80%D0%BE%D0%BC+%28%D0%9C%D0%BE%D1%81%D0%BA%D0%B2%D0%B0%2C+%D0%A1%D0%BF%D0%B1%29+300+%D1%80%D1%83%D0%B1.+%3D+300&city=%D0%9C%D0%BE%D1%81%D0%BA%D0%B2%D0%B0&deliveryAddress=%D0%97%D0%BE%D0%BE%D0%BB%D0%BE%D0%B3%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B0%D1%8F+12%2C+%D0%BA%D0%BE%D1%80%D0%BF.+1%2C+%D0%BA%D0%B2.+66&comment=%D0%BA%D0%BE%D0%BC%D0%BC%D0%B5%D0%BD%D1%82&payment%5Bsys%5D=none&payment%5Bsystranid%5D=0&payment%5Borderid%5D=1557604691&payment%5Bproducts%5D%5B0%5D%5Bname%5D=Minipresso+GR&payment%5Bproducts%5D%5B0%5D%5Bquantity%5D=1&payment%5Bproducts%5D%5B0%5D%5Bamount%5D=4500&payment%5Bproducts%5D%5B0%5D%5Bprice%5D=4500&payment%5Bproducts%5D%5B1%5D%5Bname%5D=Nanopresso+Patrol+Orange&payment%5Bproducts%5D%5B1%5D%5Bquantity%5D=1&payment%5Bproducts%5D%5B1%5D%5Bamount%5D=5200&payment%5Bproducts%5D%5B1%5D%5Bprice%5D=5200&payment%5Bamount%5D=24450&formid=form42581206&formname=Cart";

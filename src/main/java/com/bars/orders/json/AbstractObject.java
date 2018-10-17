@@ -4,6 +4,7 @@ package com.bars.orders.json;
 import com.microsoft.azure.functions.ExecutionContext;
 import org.json.JSONObject;
 
+import java.util.Map;
 import java.util.logging.Logger;
 
 public abstract class AbstractObject {
@@ -26,6 +27,10 @@ public abstract class AbstractObject {
 
     public Logger getLogger() {
         return log;
+    }
+
+    public Map<String, Object> toMap() {
+        return head.toMap();
     }
 
     public String toJson() {

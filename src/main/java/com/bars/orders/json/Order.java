@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 
-import static com.google.common.collect.ImmutableMap.of;
+import static com.bars.orders.mongo.MyMongoClient.ORDER_ID_KEY;
 
 public class Order extends AbstractObject {
 
@@ -37,6 +37,8 @@ public class Order extends AbstractObject {
 
         head.put("date", dateTimeValue[0]);
         head.put("time", dateTimeValue[1]);
+
+        head.put(ORDER_ID_KEY, payment.getString("orderid"));
     }
 
     public JSONObject getPayment() {

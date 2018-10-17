@@ -72,9 +72,10 @@ public class Function {
             List<String> orderIds = myMongoClient.getOrderIds();
             if (! orderIds.contains(orderId)) {
                 logger.info("Received new order " + orderId);
-                myMongoClient.addOrder(orderId);
 
                 processOrder();
+
+                myMongoClient.storeOrder(order);
 
                 sendPost(zapierProductsUrl, order.toJson());
 
@@ -85,6 +86,7 @@ public class Function {
         } catch (Exception e) {
 
             logger.log(Level.WARNING, "Couldn't process request. Error msg: " + e.getMessage(), e);
+            logger.log(Level.WARNING, "Request body: " + request.getBody());
 
             return request.createResponseBuilder(HttpStatus.OK).body("Dummy done").build();
         }
