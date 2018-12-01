@@ -20,6 +20,7 @@ import static com.mongodb.client.model.Projections.include;
 public class MyMongoClient {
     public static final String ORDER_ID_KEY = "orderId";
     public static final String ORDERS_COLLECTION_NAME = "orders";
+    public static final String DATABASE_NAME = "db";
     private final Logger logger;
 
     MongoCollection<Document> ordersCol;
@@ -37,13 +38,13 @@ public class MyMongoClient {
 
     public void init() {
 
-        logger.info("Connectiong to Mongo..., uri: " + uri);
+        logger.info("Connecting to Mongo..., uri: " + uri);
         MongoClient mongoClient = new MongoClient(new MongoClientURI(uri));
 
-        MongoDatabase database = mongoClient.getDatabase("db");
+        MongoDatabase database = mongoClient.getDatabase(DATABASE_NAME);
 
         ordersCol = database.getCollection(ORDERS_COLLECTION_NAME);
-        ordersCol.createIndex(Indexes.ascending(ORDER_ID_KEY), new IndexOptions().unique(true));
+        //ordersCol.createIndex(Indexes.ascending(ORDER_ID_KEY), new IndexOptions().unique(true));
 
         logger.info("Successfully connected to Mongo");
     }

@@ -19,8 +19,8 @@
         <azure.functions.maven.plugin.version>1.0.0-beta-6</azure.functions.maven.plugin.version>
         <azure.functions.java.library.version>1.0.0-beta-5</azure.functions.java.library.version>
 
-        <functionAppName>tildaforward</functionAppName>
-        <functionAppRegion>northeurope</functionAppRegion>
+        <functionAppName>tilda8bars</functionAppName>
+        <functionAppRegion>westeurope</functionAppRegion>
 
         <stagingDirectory>${project.build.directory}/azure-functions/${functionAppName}</stagingDirectory>
         <functionResourceGroup>java-functions-group</functionResourceGroup>

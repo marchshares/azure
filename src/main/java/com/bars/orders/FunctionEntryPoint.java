@@ -19,7 +19,6 @@ public class FunctionEntryPoint {
             @HttpTrigger(name = "req", methods = {HttpMethod.GET, HttpMethod.POST}, authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,
             final ExecutionContext context) {
 
-        loadAppProperties();
         Function func = new Function(request, context);
         func.init();
 

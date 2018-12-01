@@ -9,9 +9,6 @@ public class PropertiesHelper {
 
     public static final String PROPERTIES_FILE_PATH = "../../classes/app.properties";
 
-    public static void main(String[] args) {
-        loadAppProperties();
-    }
     public static void loadAppProperties() {
         File file = new File(PROPERTIES_FILE_PATH);
         if (file.exists()) {
@@ -25,8 +22,6 @@ public class PropertiesHelper {
                 e.printStackTrace();
             }
         }
-
-
     }
 
     public static String getSystemProp(String propName) {

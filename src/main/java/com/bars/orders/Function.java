@@ -83,13 +83,6 @@ public class Function {
                 myMongoClient.storeOrder(order);
 
                 httpClient.sendPost(zapierProductsUrl, order.toJson());
-//                httpClient.sendPost(zapierProductsUrl,
-//                        "{\n" +
-//                                "  \"api_id\" : \"92D97083-AFED-4AE3-E9AE-7E8A01877E8E\",\n" +
-//                                "  \"to\" : 79160709365,\n" +
-//                                "  \"msg\" : \"hello\",\n" +
-//                                "  \"json\" : 1\n" +
-//                                "}");
 
             } else {
                 logger.log(Level.WARNING, "Received the same order " + orderId + ". Will skip");
