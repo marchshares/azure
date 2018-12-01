@@ -7,11 +7,14 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.bars.orders.http.SimpleHttpClient;
 import com.bars.orders.json.Order;
 import com.bars.orders.mongo.MyMongoClient;
 import com.bars.orders.operations.FieldsRemapper;
 import com.bars.orders.operations.SetSplitter;
 import com.microsoft.azure.functions.*;
+
+import static com.bars.orders.PropertiesHelper.getSystemProp;
 
 /**
  * Azure Functions with HTTP Trigger.
@@ -24,6 +27,7 @@ public class Function {
 
     private String zapierProductsUrl;
     private MyMongoClient myMongoClient;
+    private SimpleHttpClient httpClient;
 
     private Order order;
 
@@ -33,8 +37,9 @@ public class Function {
 
         this.logger = context.getLogger();
 
-        this.zapierProductsUrl = System.getenv("ZapierProductsWebhookUrl");
+        this.zapierProductsUrl = getSystemProp("ZapierProductsWebhookUrl");
         this.myMongoClient = new MyMongoClient(logger);
+        this.httpClient = new SimpleHttpClient(logger);
     }
 
     public void setMyMongoClient(MyMongoClient myMongoClient) {
@@ -77,7 +82,14 @@ public class Function {
 
                 myMongoClient.storeOrder(order);
 
-                sendPost(zapierProductsUrl, order.toJson());
+                httpClient.sendPost(zapierProductsUrl, order.toJson());
+//                httpClient.sendPost(zapierProductsUrl,
+//                        "{\n" +
+//                                "  \"api_id\" : \"92D97083-AFED-4AE3-E9AE-7E8A01877E8E\",\n" +
+//                                "  \"to\" : 79160709365,\n" +
+//                                "  \"msg\" : \"hello\",\n" +
+//                                "  \"json\" : 1\n" +
+//                                "}");
 
             } else {
                 logger.log(Level.WARNING, "Received the same order " + orderId + ". Will skip");
@@ -102,53 +114,5 @@ public class Function {
         fieldsRemapper.remapProductNames(order);
 
         fieldsRemapper.setOrderDescription(order);
-    }
-
-    public void sendPost(String url, String body) {
-        if (url == null) {
-            logger.warning("URL is null. Request wasn't send");
-            return;
-        }
-
-        try {
-            URLConnection con = new URL(url).openConnection();
-            HttpURLConnection http = (HttpURLConnection) con;
-            http.setRequestMethod("POST");
-            http.setDoOutput(true);
-
-            byte[] out = body.getBytes(StandardCharsets.UTF_8);
-            int length = out.length;
-
-            http.setFixedLengthStreamingMode(length);
-            http.setRequestProperty("Content-Type", "application/json");
-            http.setRequestProperty("charset", "utf-8");
-
-            logger.info("connect to: " + url);
-            logger.info("body: " + body);
-            http.connect();
-
-            OutputStream os = null;
-            try {
-                os = http.getOutputStream();
-                os.write(out);
-                os.flush();
-
-                if (http.getResponseCode() == 200) {
-                    logger.info("Received OK!");
-                } else {
-                    logger.log(Level.WARNING, "Received bad response code: " + http.getResponseCode() + ", msg: " + http.getResponseMessage());
-                }
-            } finally {
-                if (os != null) {
-                    os.close();
-                }
-
-                http.disconnect();
-            }
-        } catch (Exception ex) {
-            logger.log(Level.WARNING, "ERROR msg: " + ex.getMessage(), ex);
-        }
-
-        logger.info("POST request has been finished");
     }
 }

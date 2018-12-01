@@ -14,6 +14,7 @@ import org.bson.Document;
 import java.util.List;
 import java.util.logging.Logger;
 
+import static com.bars.orders.PropertiesHelper.getSystemProp;
 import static com.mongodb.client.model.Projections.include;
 
 public class MyMongoClient {
@@ -27,7 +28,7 @@ public class MyMongoClient {
 
     public MyMongoClient(Logger logger) {
         this.logger = logger;
-        uri = System.getenv("MongoURI");
+        uri = getSystemProp("MongoURI");
     }
 
     public void setUri(String uri) {
@@ -36,7 +37,7 @@ public class MyMongoClient {
 
     public void init() {
 
-//        logger.info("Connectiong to Mongo..., uri: " + uri);
+        logger.info("Connectiong to Mongo..., uri: " + uri);
         MongoClient mongoClient = new MongoClient(new MongoClientURI(uri));
 
         MongoDatabase database = mongoClient.getDatabase("db");

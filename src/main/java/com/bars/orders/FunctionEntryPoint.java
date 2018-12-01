@@ -10,12 +10,16 @@ import com.microsoft.azure.functions.annotation.HttpTrigger;
 
 import java.util.Optional;
 
+import static com.bars.orders.PropertiesHelper.loadAppProperties;
+
 public class FunctionEntryPoint {
+
     @FunctionName("HttpTrigger-Java")
     public HttpResponseMessage run(
             @HttpTrigger(name = "req", methods = {HttpMethod.GET, HttpMethod.POST}, authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,
             final ExecutionContext context) {
 
+        loadAppProperties();
         Function func = new Function(request, context);
         func.init();
 
