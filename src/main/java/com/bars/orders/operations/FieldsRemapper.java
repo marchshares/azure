@@ -1,7 +1,9 @@
 package com.bars.orders.operations;
 
 import com.bars.orders.json.Order;
+import com.bars.orders.json.Product;
 import com.microsoft.azure.functions.ExecutionContext;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.Map;
@@ -9,6 +11,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import static com.bars.orders.operations.SetSplitter.NANO_SET_CASES;
 import static com.google.common.collect.ImmutableMap.of;
 import static java.lang.String.valueOf;
 
@@ -27,7 +30,10 @@ public class FieldsRemapper {
 
     public static final Map<String, String> mapProductNames = of(
             "nanopresso ns-адаптер", "NS-адаптер",
-            "nanopresso barista kit", "Barista Kit"
+            "nanopresso barista kit", "Barista Kit",
+            "nanopresso s-чехол", "S-Чехол",
+            "nanopresso m-чехол", "M-Чехол",
+            "nanopresso l-чехол", "L-Чехол"
     );
 
     public static final Map<String, String> mapRUColorOnEngColor = of(
@@ -69,13 +75,11 @@ public class FieldsRemapper {
                 String mappedName = mapProductNames.getOrDefault(simplyfiedName.toLowerCase(), simplyfiedName);
 
                 if (product.hasColor()) {
-                    String color = product.getColor();
+                    mappedName = remapColored(product.getColor(), mappedName);
+                }
 
-                    if (! (mappedName.equals(NANOPRESSO_NAME) && color.equals(BLACK_COLOR_NAME)) ) {
-                        if (!mappedName.contains(color)) {
-                            mappedName = mappedName + " " + color;
-                        }
-                    }
+                if (product.isCase()) {
+                    mappedName = remapCase(product, mappedName);
                 }
 
                 if (!productName.equals(mappedName)) {
@@ -83,6 +87,37 @@ public class FieldsRemapper {
                     log.info("Remap name: " + productName + " -> " + mappedName);
                 }
             });
+    }
+
+    private String remapCase(Product product, String mappedName) {
+        JSONArray options = product.getOptions();
+
+        if (options == null || options.isEmpty()) {
+            return mappedName;
+        }
+
+        JSONObject optionSize = options.getJSONObject(0);
+        if (optionSize.getString("option").equals("Размер")) {
+            String variant = optionSize.getString("variant");
+
+            return NANO_SET_CASES.stream()
+                    .filter(variant::contains)
+                    .peek(sizeName -> log.info(variant + " -> " + sizeName))
+                    .findFirst()
+                    .orElse(mappedName);
+        }
+
+        return mappedName;
+    }
+
+    private String remapColored(String color, String mappedName) {
+        if (! (mappedName.equals(NANOPRESSO_NAME) && color.equals(BLACK_COLOR_NAME)) ) {
+            if (!mappedName.contains(color)) {
+                mappedName = mappedName + " " + color;
+            }
+        }
+
+        return mappedName;
     }
 
     public void remapDelivery(Order order) {

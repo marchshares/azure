@@ -8,6 +8,7 @@ import org.json.JSONObject;
 
 import static com.bars.orders.operations.FieldsRemapper.mapRUColorOnEngColor;
 import static com.bars.orders.operations.SetSplitter.COLOR_NAME_MARK;
+import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
 
 public class Product extends AbstractObject {
 
@@ -27,6 +28,10 @@ public class Product extends AbstractObject {
                     .findFirst()
                     .ifPresent(color -> head.put("color", color));
         }
+
+        if (containsIgnoreCase(getName(), "Чехол")) {
+            setIsCase(true);
+        }
     }
 
     public String getName() {
@@ -35,6 +40,14 @@ public class Product extends AbstractObject {
 
     public void setName(String name) {
         head.put("name", name);
+    }
+
+    public boolean isCase() {
+        return head.has("isCase") && head.getBoolean("isCase");
+    }
+
+    public void setIsCase(boolean isCase) {
+        head.put("isCase", isCase);
     }
 
     public boolean hasColor() {

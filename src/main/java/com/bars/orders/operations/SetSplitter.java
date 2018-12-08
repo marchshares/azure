@@ -24,6 +24,7 @@ public class SetSplitter {
     public static final String SET_NAME_MARK = "Set";
 
     public static final String COLOR_NAME_MARK = "Цвет";
+    public static final String SIZE_NAME_MARK = "Размер";
     public static final String ACCESSORY_NAME_MARK = "Аксессуар";
     public static final String CASE_NAME_MARK = "Чехол";
 

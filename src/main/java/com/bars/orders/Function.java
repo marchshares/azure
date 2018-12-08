@@ -62,6 +62,7 @@ public class Function {
         }
 
         try {
+            logger.info("Incoming body: " + body);
             String decodedBody = URLDecoder.decode(body, "UTF-8");
 
             order = new Order(decodedBody, context);
