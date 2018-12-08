@@ -47,6 +47,10 @@ public class Order extends AbstractObject {
         return payment;
     }
 
+    public String getPhone() {
+        return head.getString("Phone");
+    }
+
     public List<Product> getProducts() {
         return products;
     }

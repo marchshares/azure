@@ -9,27 +9,47 @@ import java.util.Base64;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class SimpleHttpClient {
+import static com.bars.orders.PropertiesHelper.getSystemProp;
 
+public class SimpleHttpClient {
     private final Logger logger;
+
+    private String zapierProductsUrl;
+
+    private String smsAeroAuthTokenEncoded;
+    private String smsAeroUrl;
 
     public SimpleHttpClient(Logger logger) {
         this.logger = logger;
+
+        this.zapierProductsUrl = getSystemProp("ZapierProductsWebhookUrl");
+
+        this.smsAeroUrl = getSystemProp("SmsAeroWebhookUrl");
+        this.smsAeroAuthTokenEncoded = getEncodedToken(getSystemProp("SmsAeroToken"));
     }
 
-    public void sendPost(String url, String body) {
+    public void sendZapier(String body) {
+        sendPost(zapierProductsUrl, body, null);
+    }
+
+    public void sendSmsAero(String body) {
+        sendPost(smsAeroUrl, body, smsAeroAuthTokenEncoded);
+    }
+
+    private void sendPost(String url, String body, String encodedAuthToken) {
         if (url == null) {
             logger.warning("URL is null. Request wasn't send");
             return;
         }
 
         try {
-            String encoding = Base64.getEncoder().encodeToString("hello@8bars.ru:Yof4oaIJVrL0y8AioX5sNQr8U".getBytes("UTF-8"));
             URLConnection con = new URL(url).openConnection();
             HttpURLConnection http = (HttpURLConnection) con;
             http.setRequestMethod("POST");
             http.setDoOutput(true);
-            http.setRequestProperty  ("Authorization", "Basic " + encoding);
+            if (encodedAuthToken != null) {
+                http.setRequestProperty("Authorization", "Basic " + encodedAuthToken);
+            }
             byte[] out = body.getBytes(StandardCharsets.UTF_8);
             int length = out.length;
 
@@ -64,5 +84,14 @@ public class SimpleHttpClient {
         }
 
         logger.info("POST request has been finished");
+    }
+
+    private String getEncodedToken(String authToken) {
+        try {
+            return Base64.getEncoder().encodeToString(authToken.getBytes("UTF-8"));
+        } catch (Exception e) {
+            logger.log(Level.WARNING, "cound't encode auth token " + authToken + ", cause " + e.getMessage());
+            return null;
+        }
     }
 }

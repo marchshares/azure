@@ -1,6 +1,5 @@
 package com.bars.orders.http;
 
-import com.microsoft.azure.functions.ExecutionContext;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
@@ -20,7 +19,6 @@ import java.util.Base64;
 import java.util.List;
 import java.util.logging.Logger;
 
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
@@ -44,7 +42,7 @@ public class SimpleHttpClientTest {
                 "  \"channel\" : \"DIRECT\"\n" +
                 "}";
 
-        httpClient.sendPost(url, body);
+//        httpClient.sendPost(url, body);
     }
 
     public static void main(String[] args) throws ClientProtocolException, IOException {

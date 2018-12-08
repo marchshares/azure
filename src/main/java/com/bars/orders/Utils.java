@@ -16,11 +16,16 @@ public class Utils {
 
 
     public static boolean isContainsSubName(String name, String subName) {
-        if (name == null) {
+        if (name == null || subName == null) {
             return false;
         }
+        String subNameLower = subName.toLowerCase();
 
-        return Sets.newHashSet(name.split(" ")).contains(subName);
+        return Sets.newHashSet(name.split(" "))
+                .stream()
+                .map(String::toLowerCase)
+                .anyMatch(subNameLower::equals);
+
     }
 
     public static boolean isStringEquals(String str1, String str2) {

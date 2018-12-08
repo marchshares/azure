@@ -19,6 +19,10 @@ public class FieldsRemapper {
     public static final String DELIVERY_COURIER_NAME_LABEL = "Доставка курьером";
     public static final String SAMOVIVOZ_NAME_LABEL = "Самовывоз";
     public static final String DELIVERY_ON_RUSSIA_NAME_LABEL = "Доставка по России";
+
+    public static final String NANOPRESSO_NAME = "Nanopresso";
+    public static final String BLACK_COLOR_NAME = "Black";
+
     private final Logger log;
 
     public static final Map<String, String> mapProductNames = of(
@@ -30,7 +34,7 @@ public class FieldsRemapper {
             "Желтый",      "Yellow",
             "Оранжевый",   "Orange",
             "Красный",     "Red",
-            "Темно-серый", "Grey"
+            "Черный",      "Black"
     );
 
     public FieldsRemapper(ExecutionContext context) {
@@ -67,8 +71,10 @@ public class FieldsRemapper {
                 if (product.hasColor()) {
                     String color = product.getColor();
 
-                    if (!mappedName.contains(color)) {
-                        mappedName = mappedName + " " + color;
+                    if (! (mappedName.equals(NANOPRESSO_NAME) && color.equals(BLACK_COLOR_NAME)) ) {
+                        if (!mappedName.contains(color)) {
+                            mappedName = mappedName + " " + color;
+                        }
                     }
                 }
 

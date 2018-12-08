@@ -1,8 +1,6 @@
 package com.bars.orders;
 
-import java.io.OutputStream;
 import java.net.*;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -14,8 +12,6 @@ import com.bars.orders.operations.FieldsRemapper;
 import com.bars.orders.operations.SetSplitter;
 import com.microsoft.azure.functions.*;
 
-import static com.bars.orders.PropertiesHelper.getSystemProp;
-
 /**
  * Azure Functions with HTTP Trigger.
  */
@@ -25,7 +21,6 @@ public class Function {
     private final ExecutionContext context;
     private final Logger logger;
 
-    private String zapierProductsUrl;
     private MyMongoClient myMongoClient;
     private SimpleHttpClient httpClient;
 
@@ -37,7 +32,6 @@ public class Function {
 
         this.logger = context.getLogger();
 
-        this.zapierProductsUrl = getSystemProp("ZapierProductsWebhookUrl");
         this.myMongoClient = new MyMongoClient(logger);
         this.httpClient = new SimpleHttpClient(logger);
     }
@@ -46,9 +40,8 @@ public class Function {
         this.myMongoClient = myMongoClient;
     }
 
-
-    public void setZapierProductsUrl(String zapierProductsUrl) {
-        this.zapierProductsUrl = zapierProductsUrl;
+    public void setHttpClient(SimpleHttpClient httpClient) {
+        this.httpClient = httpClient;
     }
 
     public Order getOrder() {
@@ -77,12 +70,14 @@ public class Function {
             List<String> orderIds = myMongoClient.getOrderIds();
             if (! orderIds.contains(orderId)) {
                 logger.info("Received new order " + orderId);
-
                 processOrder();
 
                 myMongoClient.storeOrder(order);
 
-                httpClient.sendPost(zapierProductsUrl, order.toJson());
+                httpClient.sendZapier(order.toJson());
+
+//                SmsAero sms = new SmsAero(order, context);
+//                httpClient.sendSmsAero(sms.toJson());
 
             } else {
                 logger.log(Level.WARNING, "Received the same order " + orderId + ". Will skip");

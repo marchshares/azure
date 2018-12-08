@@ -14,7 +14,11 @@ public abstract class AbstractObject {
 
     protected final JSONObject head;
 
-    AbstractObject(JSONObject head, ExecutionContext context) {
+    protected AbstractObject(ExecutionContext context) {
+        this(new JSONObject(), context);
+    }
+
+    protected AbstractObject(JSONObject head, ExecutionContext context) {
         this.head = head;
 
         this.context = context;
