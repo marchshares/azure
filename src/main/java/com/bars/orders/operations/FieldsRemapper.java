@@ -59,7 +59,8 @@ public class FieldsRemapper {
     }
 
     public void remapDelivery(Order order) {
-        String deliveryType       = UNDEFINED_VALUE;
+        String deliveryType;
+        String trelloDeliveryType;
         String deliveryClientCost = UNDEFINED_VALUE;
         String deliveryCompany    = UNDEFINED_VALUE;
         String fullDeliveryCost   = UNDEFINED_VALUE;
@@ -71,6 +72,7 @@ public class FieldsRemapper {
 
         if (originalDeliveryType.contains(DELIVERY_COURIER_NAME_LABEL)) {
             deliveryType = DELIVERY_COURIER_NAME_LABEL;
+            trelloDeliveryType = jsonObject.getString("city");
 
             Integer preDefDeliveryCost = tryToFindDeliveryCost(originalDeliveryType);
             if (preDefDeliveryCost != null) {
@@ -84,12 +86,14 @@ public class FieldsRemapper {
 
         } else if (originalDeliveryType.contains(SAMOVIVOZ_NAME_LABEL)){
             deliveryType = SAMOVIVOZ_NAME_LABEL;
+            trelloDeliveryType = SAMOVIVOZ_NAME_LABEL;
             deliveryClientCost = "0";
             deliveryCompany = SAMOVIVOZ_NAME_LABEL;
             fullDeliveryCost = "0";
 
         } else if (originalDeliveryType.contains(DELIVERY_ON_RUSSIA_NAME_LABEL)){
             deliveryType = DELIVERY_ON_RUSSIA_NAME_LABEL;
+            trelloDeliveryType = CDEK_NAME_LABEL + " " + jsonObject.getString("city");
             deliveryCompany = CDEK_NAME_LABEL;
 
         } else {
@@ -98,6 +102,7 @@ public class FieldsRemapper {
         }
 
         jsonObject.put("deliveryType",       deliveryType);
+        jsonObject.put("trelloDeliveryType", trelloDeliveryType);
         jsonObject.put("deliveryClientCost", deliveryClientCost);
         jsonObject.put("deliveryCompany",    deliveryCompany);
         jsonObject.put("fullDeliveryCost",   fullDeliveryCost);

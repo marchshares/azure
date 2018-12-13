@@ -19,6 +19,7 @@ public class Order extends AbstractObject {
     private final JSONObject payment;
     private List<Product> products;
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+    private static final SimpleDateFormat shortDateFormat = new SimpleDateFormat("dd.MM");
     private static final SimpleDateFormat mongoDateFormat = new SimpleDateFormat("yyyy.MM.dd");
     static {
         dateFormat.setTimeZone(TimeZone.getTimeZone("Europe/Moscow"));
@@ -40,6 +41,7 @@ public class Order extends AbstractObject {
         head.put("time", dateTimeValue[1]);
 
         head.put(ORDER_ID_KEY, payment.getString("orderid"));
+        head.put("shortDate", shortDateFormat.format(new Date()));
         head.put("mongoDate", mongoDateFormat.format(new Date()));
     }
 
