@@ -14,6 +14,9 @@ public class Utils {
         return StreamSupport.stream(arr.spliterator(), false);
     }
 
+    public static String extTrim(String str) {
+        return str.replaceAll("\\s{2,}", " ").trim();
+    }
 
     public static boolean isContainsSubName(String name, String subName) {
         if (name == null || subName == null) {

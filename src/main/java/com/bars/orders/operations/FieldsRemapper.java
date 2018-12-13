@@ -2,6 +2,7 @@ package com.bars.orders.operations;
 
 import com.bars.orders.json.Order;
 import com.bars.orders.json.Product;
+import com.google.common.collect.Maps;
 import com.microsoft.azure.functions.ExecutionContext;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -11,7 +12,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import static com.bars.orders.operations.SetSplitter.NANO_SET_CASES;
 import static com.google.common.collect.ImmutableMap.of;
 import static java.lang.String.valueOf;
 
@@ -22,19 +22,15 @@ public class FieldsRemapper {
     public static final String DELIVERY_COURIER_NAME_LABEL = "Доставка курьером";
     public static final String SAMOVIVOZ_NAME_LABEL = "Самовывоз";
     public static final String DELIVERY_ON_RUSSIA_NAME_LABEL = "Доставка по России";
+    public static final String CDEK_NAME_LABEL = "CDEK";
 
     public static final String NANOPRESSO_NAME = "Nanopresso";
+    public static final String NANOPRESSO_PATROL_NAME = "Nanopresso Patrol";
     public static final String BLACK_COLOR_NAME = "Black";
 
     private final Logger log;
 
-    public static final Map<String, String> mapProductNames = of(
-            "nanopresso ns-адаптер", "NS-адаптер",
-            "nanopresso barista kit", "Barista Kit",
-            "nanopresso s-чехол", "S-Чехол",
-            "nanopresso m-чехол", "M-Чехол",
-            "nanopresso l-чехол", "L-Чехол"
-    );
+    public static final Map<String, String> mapProductNames = Maps.newHashMap();
 
     public static final Map<String, String> mapRUColorOnEngColor = of(
             "Желтый",      "Yellow",
@@ -60,64 +56,6 @@ public class FieldsRemapper {
 
 
         order.setOrderDescription(orderDescription);
-    }
-
-    public void remapProductNames(Order order) {
-        order.getProducts()
-            .forEach(product -> {
-                String productName = product.getName();
-
-                String simplyfiedName = productName
-                        .replaceAll("(?i)wacaco", "")
-                        .replaceAll("(?i)для nanopresso", "")
-                        .trim();
-
-                String mappedName = mapProductNames.getOrDefault(simplyfiedName.toLowerCase(), simplyfiedName);
-
-                if (product.hasColor()) {
-                    mappedName = remapColored(product.getColor(), mappedName);
-                }
-
-                if (product.isCase()) {
-                    mappedName = remapCase(product, mappedName);
-                }
-
-                if (!productName.equals(mappedName)) {
-                    product.setName(mappedName);
-                    log.info("Remap name: " + productName + " -> " + mappedName);
-                }
-            });
-    }
-
-    private String remapCase(Product product, String mappedName) {
-        JSONArray options = product.getOptions();
-
-        if (options == null || options.isEmpty()) {
-            return mappedName;
-        }
-
-        JSONObject optionSize = options.getJSONObject(0);
-        if (optionSize.getString("option").equals("Размер")) {
-            String variant = optionSize.getString("variant");
-
-            return NANO_SET_CASES.stream()
-                    .filter(variant::contains)
-                    .peek(sizeName -> log.info(variant + " -> " + sizeName))
-                    .findFirst()
-                    .orElse(mappedName);
-        }
-
-        return mappedName;
-    }
-
-    private String remapColored(String color, String mappedName) {
-        if (! (mappedName.equals(NANOPRESSO_NAME) && color.equals(BLACK_COLOR_NAME)) ) {
-            if (!mappedName.contains(color)) {
-                mappedName = mappedName + " " + color;
-            }
-        }
-
-        return mappedName;
     }
 
     public void remapDelivery(Order order) {
@@ -152,6 +90,7 @@ public class FieldsRemapper {
 
         } else if (originalDeliveryType.contains(DELIVERY_ON_RUSSIA_NAME_LABEL)){
             deliveryType = DELIVERY_ON_RUSSIA_NAME_LABEL;
+            deliveryCompany = CDEK_NAME_LABEL;
 
         } else {
             log.log(Level.WARNING, "Unknown delivery type: " + originalDeliveryType);

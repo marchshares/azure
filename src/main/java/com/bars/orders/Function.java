@@ -100,7 +100,6 @@ public class Function {
         FieldsRemapper fieldsRemapper = new FieldsRemapper(context);
 
         fieldsRemapper.remapDelivery(order);
-        fieldsRemapper.remapProductNames(order);
 
         fieldsRemapper.setOrderDescription(order);
     }
