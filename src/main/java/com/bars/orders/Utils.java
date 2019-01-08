@@ -42,4 +42,10 @@ public class Utils {
     public static String toString(JSONObject option) {
         return option.toString(1);
     }
+
+    public static void checkGood(String value, String name){
+        if (!StringUtils.isNotEmpty(value)) {
+            throw new RuntimeException("Check failed: " + name + "=" + value);
+        }
+    }
 }

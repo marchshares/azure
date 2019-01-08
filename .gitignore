@@ -34,4 +34,4 @@ local.settings.json
 bin/
 obj/
 
-src/main/resources/app.properties
+src/test/resources/app.properties

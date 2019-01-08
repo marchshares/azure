@@ -1,9 +1,8 @@
-package com.bars.orders;
+package com.bars.orders.functions;
 
 import java.net.*;
 import java.util.*;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.bars.orders.http.SimpleHttpClient;
 import com.bars.orders.json.Order;
@@ -15,22 +14,15 @@ import com.microsoft.azure.functions.*;
 /**
  * Azure Functions with HTTP Trigger.
  */
-public class Function {
-
-    private final HttpRequestMessage<Optional<String>> request;
-    private final ExecutionContext context;
-    private final Logger logger;
+public class NewOrderFunction extends AbstractFunction{
 
     private MyMongoClient myMongoClient;
     private SimpleHttpClient httpClient;
 
     private Order order;
 
-    public Function(HttpRequestMessage<Optional<String>> request, ExecutionContext context) {
-        this.request = request;
-        this.context = context;
-
-        this.logger = context.getLogger();
+    public NewOrderFunction(HttpRequestMessage<Optional<String>> request, ExecutionContext context) {
+        super(request, context);
 
         this.myMongoClient = new MyMongoClient(logger);
         this.httpClient = new SimpleHttpClient(logger);
@@ -52,6 +44,7 @@ public class Function {
         myMongoClient.init();
     }
 
+    @Override
     public HttpResponseMessage run() {
 
         logger.info("Received new HTTP request");
@@ -76,9 +69,6 @@ public class Function {
                 myMongoClient.storeOrder(order);
 
                 httpClient.sendZapier(order.toJson());
-
-//                SmsAero sms = new SmsAero(order, context);
-//                httpClient.sendSmsAero(sms.toJson());
 
             } else {
                 logger.log(Level.WARNING, "Received the same order " + orderId + ". Will skip");

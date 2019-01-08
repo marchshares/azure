@@ -1,5 +1,8 @@
 package com.bars.orders.http;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -12,34 +15,32 @@ import java.util.logging.Logger;
 import static com.bars.orders.PropertiesHelper.getSystemProp;
 
 public class SimpleHttpClient {
-    private final Logger logger;
+    final Logger logger;
 
     private String zapierProductsUrl;
 
-    private String smsAeroAuthTokenEncoded;
-    private String smsAeroUrl;
+    String requestContentType;
 
     public SimpleHttpClient(Logger logger) {
         this.logger = logger;
 
         this.zapierProductsUrl = getSystemProp("ZapierProductsWebhookUrl");
 
-        this.smsAeroUrl = getSystemProp("SmsAeroWebhookUrl");
-        this.smsAeroAuthTokenEncoded = getEncodedToken(getSystemProp("SmsAeroToken"));
+        this.requestContentType = "application/json";
     }
 
     public void sendZapier(String body) {
-        sendPost(zapierProductsUrl, body, null);
+        sendPost(zapierProductsUrl, body);
     }
 
-    public void sendSmsAero(String body) {
-        sendPost(smsAeroUrl, body, smsAeroAuthTokenEncoded);
+    SimpleHttpResponse sendPost(String url, String body) {
+        return sendPost(url, body, null);
     }
 
-    private void sendPost(String url, String body, String encodedAuthToken) {
+    SimpleHttpResponse sendPost(String url, String body, String encodedAuthToken) {
         if (url == null) {
             logger.warning("URL is null. Request wasn't send");
-            return;
+            return SimpleHttpResponse.createBad();
         }
 
         try {
@@ -54,39 +55,73 @@ public class SimpleHttpClient {
             int length = out.length;
 
             http.setFixedLengthStreamingMode(length);
-            http.setRequestProperty("Content-Type", "application/json");
+            http.setRequestProperty("Content-Type", requestContentType);
             http.setRequestProperty("charset", "utf-8");
 
             logger.info("connect to: " + url);
             logger.info("body: " + body);
             http.connect();
 
-            OutputStream os = null;
-            try {
-                os = http.getOutputStream();
+            try (OutputStream os = http.getOutputStream()) {
                 os.write(out);
                 os.flush();
+
+                String content = readFully(http);
+                logger.info("responseContent: " + content);
 
                 if (http.getResponseCode() == 200) {
                     logger.info("Received OK!");
                 } else {
                     logger.log(Level.WARNING, "Received bad response code: " + http.getResponseCode() + ", msg: " + http.getResponseMessage());
                 }
-            } finally {
-                if (os != null) {
-                    os.close();
-                }
 
+                return new SimpleHttpResponse(http.getResponseCode(), content);
+            } finally {
                 http.disconnect();
             }
         } catch (Exception ex) {
             logger.log(Level.WARNING, "ERROR msg: " + ex.getMessage(), ex);
+            return SimpleHttpResponse.createBad();
         }
 
-        logger.info("POST request has been finished");
     }
 
-    private String getEncodedToken(String authToken) {
+    public static class SimpleHttpResponse {
+        int responseCode;
+        String content;
+
+        public SimpleHttpResponse(int responseCode, String content) {
+            this.responseCode = responseCode;
+            this.content = content;
+        }
+
+        public static SimpleHttpResponse createBad() {
+            return new SimpleHttpResponse(-1, null);
+        }
+
+        @Override
+        public String toString() {
+            return "SimpleHttpResponse{" +
+                    "responseCode=" + responseCode +
+                    ", content='" + content + '\'' +
+                    '}';
+        }
+    }
+
+    private String readFully(HttpURLConnection http) throws IOException {
+        StringBuffer content = new StringBuffer();
+
+        BufferedReader in = new BufferedReader(new InputStreamReader(http.getInputStream()));
+
+        String inputLine;
+        while ((inputLine = in.readLine()) != null) {
+            content.append(inputLine);
+        }
+        return content.toString();
+    }
+
+
+    String getEncodedToken(String authToken) {
         try {
             return Base64.getEncoder().encodeToString(authToken.getBytes("UTF-8"));
         } catch (Exception e) {

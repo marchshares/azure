@@ -1,5 +1,8 @@
-package com.bars.orders;
+package com.bars.orders.functions;
 
+import com.bars.orders.HttpResponseMessageMock;
+import com.bars.orders.TestHelper;
+import com.bars.orders.functions.NewOrderFunction;
 import com.bars.orders.http.SimpleHttpClient;
 import com.bars.orders.json.Product;
 import com.bars.orders.mongo.MyMongoClient;
@@ -10,13 +13,9 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import com.microsoft.azure.functions.*;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.*;
-import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 import static org.junit.Assert.assertEquals;
@@ -26,14 +25,10 @@ import static org.mockito.Mockito.*;
 
 
 /**
- * Unit test for Function class.
+ * Unit test for NewOrderFunction class.
  */
 @Ignore
-public class FunctionTest {
-    public static final Logger log = Logger.getLogger(FunctionTest.class.getName());
-
-    public static final String TEST_WEBHOOK = "https://webhook.site/4b6b2ebe-1ce1-4ca2-9d29-5cf5bf0cde6a";
-
+public class NewOrderFunctionTest {
     private static final Set<String> possibleNames = Sets.newHashSet(
             "Nanopresso Tattoo Orange", "Nanopresso Tattoo Yellow",
             "Nanopresso", "Minipresso GR", "Minipresso NS",
@@ -53,27 +48,15 @@ public class FunctionTest {
             new TestBody(14, "Form=Cart&Name=%D0%A2%D0%B8%D0%BC%D1%83%D1%80+%D0%A1%D0%B0%D0%B9%D1%8F%D1%80%D0%BE%D0%B2%D0%B8%D1%87+%D0%A5%D0%B0%D1%84%D0%B8%D0%B7%D0%BE%D0%B2&Phone=%2B7+%28916%29+070-9365&Email=direct-8bars%40yandex.ru&deliveryType=%D0%A1%D0%B0%D0%BC%D0%BE%D0%B2%D1%8B%D0%B2%D0%BE%D0%B7+%28%D0%BC.+%D0%9F%D0%B0%D0%B2%D0%B5%D0%BB%D0%B5%D1%86%D0%BA%D0%B0%D1%8F%29&city=%D0%9C%D0%BE%D1%81%D0%BA%D0%B2%D0%B0&deliveryAddress=%D0%A1%D0%B0%D0%BC%D0%BE%D0%B2%D1%8B%D0%B2%D0%BE%D0%B7&payment%5Bsys%5D=none&payment%5Bsystranid%5D=0&payment%5Borderid%5D=1959512504&payment%5Bproducts%5D%5B0%5D%5Bname%5D=Minipresso+GR&payment%5Bproducts%5D%5B0%5D%5Bquantity%5D=1&payment%5Bproducts%5D%5B0%5D%5Bamount%5D=4500&payment%5Bproducts%5D%5B0%5D%5Bprice%5D=4500&payment%5Bproducts%5D%5B1%5D%5Bname%5D=Wacaco+Minipresso+NS&payment%5Bproducts%5D%5B1%5D%5Bquantity%5D=1&payment%5Bproducts%5D%5B1%5D%5Bamount%5D=4500&payment%5Bproducts%5D%5B1%5D%5Bprice%5D=4500&payment%5Bproducts%5D%5B1%5D%5Bsku%5D=%D0%90%D1%80%D1%82%D0%B8%D0%BA%D1%83%D0%BB+MPNS%D0%92+%D0%BD%D0%B0%D0%BB%D0%B8%D1%87%D0%B8%D0%B8%D0%91%D1%80%D0%B5%D0%BD%D0%B4%3A+Wacaco&payment%5Bproducts%5D%5B2%5D%5Bname%5D=Nanopresso&payment%5Bproducts%5D%5B2%5D%5Bquantity%5D=1&payment%5Bproducts%5D%5B2%5D%5Bamount%5D=5200&payment%5Bproducts%5D%5B2%5D%5Bprice%5D=5200&payment%5Bproducts%5D%5B3%5D%5Bname%5D=Nanopresso+Patrol+Red&payment%5Bproducts%5D%5B3%5D%5Bquantity%5D=1&payment%5Bproducts%5D%5B3%5D%5Bamount%5D=5200&payment%5Bproducts%5D%5B3%5D%5Bprice%5D=5200&payment%5Bproducts%5D%5B4%5D%5Bname%5D=Wacaco+Nanopresso+Patrol&payment%5Bproducts%5D%5B4%5D%5Bquantity%5D=1&payment%5Bproducts%5D%5B4%5D%5Bamount%5D=5200&payment%5Bproducts%5D%5B4%5D%5Bprice%5D=5200&payment%5Bproducts%5D%5B4%5D%5Bsku%5D=%D0%90%D1%80%D1%82%D0%B8%D0%BA%D1%83%D0%BB+NPPC+%D0%92+%D0%BD%D0%B0%D0%BB%D0%B8%D1%87%D0%B8%D0%B8%D0%91%D1%80%D0%B5%D0%BD%D0%B4%3A+Wacaco&payment%5Bproducts%5D%5B4%5D%5Boptions%5D%5B0%5D%5Boption%5D=%D0%A6%D0%B2%D0%B5%D1%82&payment%5Bproducts%5D%5B4%5D%5Boptions%5D%5B0%5D%5Bvariant%5D=%D0%9A%D1%80%D0%B0%D1%81%D0%BD%D1%8B%D0%B9&payment%5Bproducts%5D%5B5%5D%5Bname%5D=Wacaco+NS-%D0%B0%D0%B4%D0%B0%D0%BF%D1%82%D0%B5%D1%80+%D0%B4%D0%BB%D1%8F+Nanopresso&payment%5Bproducts%5D%5B5%5D%5Bquantity%5D=1&payment%5Bproducts%5D%5B5%5D%5Bamount%5D=1400&payment%5Bproducts%5D%5B5%5D%5Bprice%5D=1400&payment%5Bproducts%5D%5B5%5D%5Bsku%5D=%D0%90%D1%80%D1%82%D0%B8%D0%BA%D1%83%D0%BB+NSAD%D0%92+%D0%BD%D0%B0%D0%BB%D0%B8%D1%87%D0%B8%D0%B8%D0%91%D1%80%D0%B5%D0%BD%D0%B4%3A+Wacaco&payment%5Bproducts%5D%5B6%5D%5Bname%5D=Nanopresso+NS-%D0%B0%D0%B4%D0%B0%D0%BF%D1%82%D0%B5%D1%80&payment%5Bproducts%5D%5B6%5D%5Bquantity%5D=1&payment%5Bproducts%5D%5B6%5D%5Bamount%5D=1400&payment%5Bproducts%5D%5B6%5D%5Bprice%5D=1400&payment%5Bproducts%5D%5B7%5D%5Bname%5D=Nanopresso+L-%D0%A7%D0%B5%D1%85%D0%BE%D0%BB&payment%5Bproducts%5D%5B7%5D%5Bquantity%5D=1&payment%5Bproducts%5D%5B7%5D%5Bamount%5D=1400&payment%5Bproducts%5D%5B7%5D%5Bprice%5D=1400&payment%5Bproducts%5D%5B8%5D%5Bname%5D=Wacaco+Nanopresso+%D0%A7%D0%B5%D1%85%D0%BE%D0%BB&payment%5Bproducts%5D%5B8%5D%5Bquantity%5D=1&payment%5Bproducts%5D%5B8%5D%5Bamount%5D=1400&payment%5Bproducts%5D%5B8%5D%5Bprice%5D=1400&payment%5Bproducts%5D%5B8%5D%5Bsku%5D=%D0%90%D1%80%D1%82%D0%B8%D0%BA%D1%83%D0%BB+NMCS%D0%92+%D0%BD%D0%B0%D0%BB%D0%B8%D1%87%D0%B8%D0%B8%D0%91%D1%80%D0%B5%D0%BD%D0%B4%3A+Wacaco&payment%5Bproducts%5D%5B8%5D%5Boptions%5D%5B0%5D%5Boption%5D=%D0%A0%D0%B0%D0%B7%D0%BC%D0%B5%D1%80&payment%5Bproducts%5D%5B8%5D%5Boptions%5D%5B0%5D%5Bvariant%5D=S-%D0%A7%D0%B5%D1%85%D0%BE%D0%BB+%28%D1%81%D1%82%D0%B0%D0%BD%D0%B4%D0%B0%D1%80%D1%82%D0%BD%D1%8B%D0%B9%29&payment%5Bproducts%5D%5B9%5D%5Bname%5D=Nanopresso+Set&payment%5Bproducts%5D%5B9%5D%5Bquantity%5D=1&payment%5Bproducts%5D%5B9%5D%5Bamount%5D=5940&payment%5Bproducts%5D%5B9%5D%5Bprice%5D=5940&payment%5Bproducts%5D%5B9%5D%5Bsku%5D=%D0%9A%D0%BE%D0%BC%D0%BF%D0%BB%D0%B5%D0%BA%D1%82+%D0%BD%D0%B0+%D0%B2%D1%81%D0%B5+%D1%81%D0%BB%D1%83%D1%87%D0%B0%D0%B8+%D0%B6%D0%B8%D0%B7%D0%BD%D0%B8&payment%5Bproducts%5D%5B9%5D%5Boptions%5D%5B0%5D%5Boption%5D=%D0%A6%D0%B2%D0%B5%D1%82&payment%5Bproducts%5D%5B9%5D%5Boptions%5D%5B0%5D%5Bvariant%5D=%D0%96%D0%B5%D0%BB%D1%82%D1%8B%D0%B9&payment%5Bproducts%5D%5B9%5D%5Boptions%5D%5B1%5D%5Boption%5D=%D0%90%D0%BA%D1%81%D0%B5%D1%81%D1%81%D1%83%D0%B0%D1%80&payment%5Bproducts%5D%5B9%5D%5Boptions%5D%5B1%5D%5Bvariant%5D=%D0%9D%D0%B5%D1%82&payment%5Bproducts%5D%5B9%5D%5Boptions%5D%5B2%5D%5Boption%5D=%D0%A7%D0%B5%D1%85%D0%BE%D0%BB&payment%5Bproducts%5D%5B9%5D%5Boptions%5D%5B2%5D%5Bprice%5D=1260&payment%5Bproducts%5D%5B9%5D%5Boptions%5D%5B2%5D%5Bvariant%5D=M-%D0%A7%D0%B5%D1%85%D0%BE%D0%BB+%28%D0%B4%D0%BB%D1%8F+NS-%D0%B0%D0%B4%D0%B0%D0%BF%D1%82%D0%B5%D1%80%D0%B0%29&payment%5Bproducts%5D%5B10%5D%5Bname%5D=Nanopresso+Set&payment%5Bproducts%5D%5B10%5D%5Bquantity%5D=1&payment%5Bproducts%5D%5B10%5D%5Bamount%5D=8010&payment%5Bproducts%5D%5B10%5D%5Bprice%5D=8010&payment%5Bproducts%5D%5B10%5D%5Bsku%5D=%D0%9A%D0%BE%D0%BC%D0%BF%D0%BB%D0%B5%D0%BA%D1%82+%D0%BD%D0%B0+%D0%B2%D1%81%D0%B5+%D1%81%D0%BB%D1%83%D1%87%D0%B0%D0%B8+%D0%B6%D0%B8%D0%B7%D0%BD%D0%B8&payment%5Bproducts%5D%5B10%5D%5Boptions%5D%5B0%5D%5Boption%5D=%D0%A6%D0%B2%D0%B5%D1%82&payment%5Bproducts%5D%5B10%5D%5Boptions%5D%5B0%5D%5Bvariant%5D=%D0%9E%D1%80%D0%B0%D0%BD%D0%B6%D0%B5%D0%B2%D1%8B%D0%B9&payment%5Bproducts%5D%5B10%5D%5Boptions%5D%5B1%5D%5Boption%5D=%D0%90%D0%BA%D1%81%D0%B5%D1%81%D1%81%D1%83%D0%B0%D1%80&payment%5Bproducts%5D%5B10%5D%5Boptions%5D%5B1%5D%5Bprice%5D=8010&payment%5Bproducts%5D%5B10%5D%5Boptions%5D%5B1%5D%5Bvariant%5D=Barista+Kit%2BNS-%D0%B0%D0%B4%D0%B0%D0%BF%D1%82%D0%B5%D1%80&payment%5Bproducts%5D%5B10%5D%5Boptions%5D%5B2%5D%5Boption%5D=%D0%A7%D0%B5%D1%85%D0%BE%D0%BB&payment%5Bproducts%5D%5B10%5D%5Boptions%5D%5B2%5D%5Bvariant%5D=%D0%9D%D0%B5%D1%82&payment%5Bamount%5D=44150&formid=form42581206&formname=Cart")
     );
 
-    private void setTestProperties() {
-        try {
-            LogManager.getLogManager().readConfiguration(new FileInputStream("src/test/resources/logging.properties"));
-        } catch (IOException e) {
-            //ignore
-        }
-        System.setProperty("ZapierProductsWebhookUrl", TEST_WEBHOOK);
-        System.setProperty("SmsAeroWebhookUrl", TEST_WEBHOOK);
-//        System.setProperty("SmsAeroWebhookUrl", "https://gate.smsaero.ru/v2/sms/testsend");
-//        System.setProperty("SmsAeroToken", "");
-    }
-
     @Before
     public void setUp() {
-        setTestProperties();
+        TestHelper.setTestProperties();
     }
 
     @Test
     @Ignore
     public void testWebhook() {
-        Function httpFunc = createFunc(testBodies.get(2).body);
+        NewOrderFunction httpFunc = createFunc(testBody);
         httpFunc.init();
         final HttpResponseMessage res = httpFunc.run();
 
@@ -91,7 +74,7 @@ public class FunctionTest {
         for (TestBody testBody : testBodies) {
             System.out.println("\n-----------------");
             System.out.println("Num: " + i++);
-            Function httpFunc = createFunc(testBody.body, true);
+            NewOrderFunction httpFunc = createFunc(testBody.body, true);
             httpFunc.init();
 
             final HttpResponseMessage res = httpFunc.run();
@@ -108,11 +91,11 @@ public class FunctionTest {
         }
     }
 
-    private static Function createFunc(String funcBody) {
+    private static NewOrderFunction createFunc(String funcBody) {
         return createFunc(funcBody, false);
     }
 
-    private static Function createFunc(String funcBody, boolean mockHttp) {
+    private static NewOrderFunction createFunc(String funcBody, boolean mockHttp) {
         HttpRequestMessage request = mock(HttpRequestMessage.class);
 
         final Map<String, String> queryParams = new HashMap<>();
@@ -128,13 +111,13 @@ public class FunctionTest {
         }).when(request).createResponseBuilder(any(HttpStatus.class));
 
         ExecutionContext context = mock(ExecutionContext.class);
-        doReturn(log).when(context).getLogger();
+        doReturn(Logger.getGlobal()).when(context).getLogger();
 
         MyMongoClient mongoClient = mock(MyMongoClient.class);
         when(mongoClient.getOrderIds()).thenReturn(Lists.newArrayList());
 
         // Invoke
-        Function httpFunc = new Function(request, context);
+        NewOrderFunction httpFunc = new NewOrderFunction(request, context);
         httpFunc.setMyMongoClient(mongoClient);
 
         if (mockHttp) {
