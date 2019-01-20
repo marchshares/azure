@@ -19,6 +19,8 @@ import static com.bars.orders.Utils.checkGood;
 
 public class SendSmsCdekTrackCodeFunction extends AbstractFunction {
     public static final String PAYMENT_ID_PATTERN = "^[0-9]{3,}$";
+    public static final Pattern PHONE_PATTERN = Pattern.compile("\\+.*$");
+    public static final Pattern PLACE_HOLDERS_PATTERN = Pattern.compile("\\$\\{[^}]*}");
 
     private final CdekHttpClient cdekHttpClient;
     private final SmsAeroHttpClient smsAeroHttpClient;
@@ -44,10 +46,10 @@ public class SendSmsCdekTrackCodeFunction extends AbstractFunction {
 
         } catch (Exception e) {
 
-            logger.log(Level.WARNING, "Couldn't process request. Error msg: " + e.getMessage(), e);
+            logger.log(Level.WARNING, "Couldn't process request. Error " + e.toString() + ", msg: " + e.getMessage(), e);
             logger.log(Level.WARNING, "Request body: " + request.getBody());
 
-            return request.createResponseBuilder(HttpStatus.BAD_REQUEST).body("Error msg: " + e.getMessage()).build();
+            return request.createResponseBuilder(HttpStatus.BAD_REQUEST).body("Error " + e.toString() + ", msg: " + e.getMessage()).build();
         }
 
         return request.createResponseBuilder(HttpStatus.OK).body("Done").build();
@@ -58,25 +60,33 @@ public class SendSmsCdekTrackCodeFunction extends AbstractFunction {
 
         String trelloCardDesc = jsonBody.getString("trelloCardDesc");
         String trelloCardName = jsonBody.getString("trelloCardName");
+        String msgTemplate = jsonBody.getString("msgTemplate");
 
         String phone = getPhone(trelloCardDesc);
         String cdekOrderId = getCdekOrderId(trelloCardName);
 
-        String msgText = "Мы уже упаковали ваш заказ и готовим его к отправке. " +
-                "Статус заказа доступен по ссылке: cdek.ru/track.html?order_id=" + cdekOrderId;
+        String msgText = msgTemplate.replace("${cdekOrderId}", cdekOrderId);
+        checkPlaceHolders(msgText);
 
         smsAeroHttpClient.sendSms(phone, msgText);
+    }
+
+    private static void checkPlaceHolders(String msgText) {
+        Matcher matcher = PLACE_HOLDERS_PATTERN.matcher(msgText);
+        if (matcher.find()) {
+            throw new RuntimeException("Found unresolved placeholder " + matcher.group() + " in " + msgText);
+        }
     }
 
     public String getPhone(String trelloCardDesc) {
         String[] descLines = trelloCardDesc.split("\n");
 
-        Pattern pattern = Pattern.compile("\\+.*$");
         String phone = Arrays.stream(descLines)
-                .filter(line -> line.contains("Phone") && pattern.matcher(line).find())
+                .filter(line -> line.contains("Phone") && PHONE_PATTERN.matcher(line).find())
                 .map(line -> {
-                    Matcher matcher = pattern.matcher(line);
+                    Matcher matcher = PHONE_PATTERN.matcher(line);
                     matcher.find();
+
 
                     return matcher.group();
                 }).findFirst().orElse(null);

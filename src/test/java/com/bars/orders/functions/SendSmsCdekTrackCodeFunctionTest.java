@@ -64,10 +64,15 @@ public class SendSmsCdekTrackCodeFunctionTest {
 
     private String testJsonBody = "{" +
             "\"trelloCardName\" : \"" + testTrelloCardName + "\", " +
+            "\"msgTemplate\" : \"" + msgTemplate + "\", " +
             "\"trelloCardDesc\" : \"" + testTrelloCardDesc + "\"" +
             "}";
 
     private static final String testTrelloCardName = "1164522304: Анна Екатеринбург";
+
+    private static final String msgTemplate = "Мы уже упаковали ваш заказ и готовим его к отправке. " +
+            "Статус заказа доступен по ссылке: cdek.ru/track.html?order_id=${cdekOrderId}";
+
     private static final String testTrelloCardDesc = "#Заказ №1164522304 с сайта [8bars.ru]\n" +
             "\n" +
             "\n" +
