@@ -2,9 +2,6 @@ package com.bars.orders.functions;
 
 import com.bars.orders.HttpResponseMessageMock;
 import com.bars.orders.TestHelper;
-import com.bars.orders.http.SimpleHttpClient;
-import com.bars.orders.mongo.MyMongoClient;
-import com.google.common.collect.Lists;
 import com.microsoft.azure.functions.ExecutionContext;
 import com.microsoft.azure.functions.HttpRequestMessage;
 import com.microsoft.azure.functions.HttpResponseMessage;
@@ -14,16 +11,14 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.stubbing.Answer;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
 
+import static com.bars.orders.TestHelper.invokeContext;
+import static com.bars.orders.TestHelper.invokeRequest;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 
 public class SendSmsCdekTrackCodeFunctionTest {
@@ -36,30 +31,14 @@ public class SendSmsCdekTrackCodeFunctionTest {
     @Ignore
     @Test
     public void testFunc() {
-        SendSmsCdekTrackCodeFunction func = createFunc(testJsonBody);
+        SendSmsCdekTrackCodeFunction func = new SendSmsCdekTrackCodeFunction(
+                invokeRequest(testJsonBody),
+                invokeContext()
+        );
         HttpResponseMessage res = func.run();
 
+        System.out.println(res.getBody());
         assertEquals(res.getStatus(), HttpStatus.OK);
-    }
-
-    private static SendSmsCdekTrackCodeFunction createFunc(String funcBody) {
-        HttpRequestMessage request = mock(HttpRequestMessage.class);
-
-        doAnswer((Answer<HttpResponseMessage.Builder>) invocation -> {
-            HttpStatus status = (HttpStatus) invocation.getArguments()[0];
-            return new HttpResponseMessageMock.HttpResponseMessageBuilderMock().status(status);
-        }).when(request).createResponseBuilder(any(HttpStatus.class));
-
-        final Optional<String> queryBody = Optional.of(funcBody);
-        doReturn(queryBody).when(request).getBody();
-
-        ExecutionContext context = mock(ExecutionContext.class);
-        doReturn(Logger.getGlobal()).when(context).getLogger();
-
-        // Invoke
-        SendSmsCdekTrackCodeFunction httpFunc = new SendSmsCdekTrackCodeFunction(request, context);
-
-        return httpFunc;
     }
 
     private String testJsonBody = "{" +

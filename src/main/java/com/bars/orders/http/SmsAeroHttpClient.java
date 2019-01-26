@@ -8,6 +8,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.util.logging.Logger;
 
 import static com.bars.orders.PropertiesHelper.getSystemProp;
+import static com.bars.orders.Utils.checkPlaceHolders;
 
 public class SmsAeroHttpClient extends SimpleHttpClient {
 
@@ -30,6 +31,8 @@ public class SmsAeroHttpClient extends SimpleHttpClient {
 
 
     public void sendSms(String msgPhone, String msgText) {
+        checkPlaceHolders(msgText);
+
         String body = smsBodyJson
                 .replace("{phone}",msgPhone)
                 .replace("{text}",msgText);

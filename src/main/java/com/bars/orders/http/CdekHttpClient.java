@@ -2,6 +2,7 @@ package com.bars.orders.http;
 
 import com.sun.org.apache.xerces.internal.parsers.DOMParser;
 import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
@@ -47,13 +48,22 @@ public class CdekHttpClient extends SimpleHttpClient {
             throw new RuntimeException("paymentId=" + paymentId + " not found't in CDEK response: " + document);
         }
 
-        Node first = orders.item(0);
-        String number = first.getAttributes().getNamedItem("Number").getNodeValue();
+        NamedNodeMap firstAttributes = orders
+                .item(0)
+                .getAttributes();
+
+        Node errorCode = firstAttributes.getNamedItem("ErrorCode");
+        if (errorCode != null) {
+            throw new RuntimeException("paymentId=" + paymentId + " returned with error in CDEK response: " +
+                    "ErrorCode: "+ errorCode.getNodeValue()+ ", Msg: " + firstAttributes.getNamedItem("Msg").getNodeValue());
+        }
+
+        String number = firstAttributes.getNamedItem("Number").getNodeValue();
         if (! paymentId.equals(number)) {
             throw new RuntimeException("paymentId=" + paymentId + " not equals Number in CDEK response: " + number);
         }
 
-        String cdekOrderId = first.getAttributes().getNamedItem("DispatchNumber").getNodeValue();
+        String cdekOrderId = firstAttributes.getNamedItem("DispatchNumber").getNodeValue();
 
         if (! cdekOrderId.matches(CDEK_ORDER_ID_PATTERN)) {
             throw new RuntimeException("cdekOrderId=" + cdekOrderId + "not in pattern=" + CDEK_ORDER_ID_PATTERN);

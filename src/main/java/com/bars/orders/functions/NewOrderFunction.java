@@ -45,44 +45,28 @@ public class NewOrderFunction extends AbstractFunction{
     }
 
     @Override
-    public HttpResponseMessage run() {
+    String processBody(String body) throws Exception{
+        String decodedBody = URLDecoder.decode(body, "UTF-8");
 
-        logger.info("Received new HTTP request");
+        order = new Order(decodedBody, context);
+        String orderId = order.getOrderId();
 
-        String body = request.getBody().orElse(null);
-        if (body == null) {
-            return request.createResponseBuilder(HttpStatus.BAD_REQUEST).body("Error: Empty body received").build();
+        List<String> orderIds = myMongoClient.getOrderIds();
+        if (! orderIds.contains(orderId)) {
+            logger.info("Received new order " + orderId);
+            processOrder();
+
+            myMongoClient.storeOrder(order);
+
+            httpClient.sendZapier(order.toJson());
+
+        } else {
+            String msg = "Received the same order " + orderId + ". Will skip";
+            logger.log(Level.WARNING, msg);
+            return msg;
         }
 
-        try {
-            logger.info("Incoming body: " + body);
-            String decodedBody = URLDecoder.decode(body, "UTF-8");
-
-            order = new Order(decodedBody, context);
-            String orderId = order.getOrderId();
-
-            List<String> orderIds = myMongoClient.getOrderIds();
-            if (! orderIds.contains(orderId)) {
-                logger.info("Received new order " + orderId);
-                processOrder();
-
-                myMongoClient.storeOrder(order);
-
-                httpClient.sendZapier(order.toJson());
-
-            } else {
-                logger.log(Level.WARNING, "Received the same order " + orderId + ". Will skip");
-            }
-
-        } catch (Exception e) {
-
-            logger.log(Level.WARNING, "Couldn't process request. Error msg: " + e.getMessage(), e);
-            logger.log(Level.WARNING, "Request body: " + request.getBody());
-
-            return request.createResponseBuilder(HttpStatus.OK).body("Dummy done").build();
-        }
-
-        return request.createResponseBuilder(HttpStatus.OK).body("Done").build();
+        return "Done";
     }
 
     public void processOrder() {

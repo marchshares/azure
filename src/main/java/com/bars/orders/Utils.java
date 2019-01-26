@@ -5,10 +5,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 public class Utils {
+    public static final Pattern PLACE_HOLDERS_PATTERN = Pattern.compile("\\$\\{[^}]*}");
 
     public static Stream<Object> jsonArrayToStream(JSONArray arr) {
         return StreamSupport.stream(arr.spliterator(), false);
@@ -46,6 +49,13 @@ public class Utils {
     public static void checkGood(String value, String name){
         if (!StringUtils.isNotEmpty(value)) {
             throw new RuntimeException("Check failed: " + name + "=" + value);
+        }
+    }
+
+    public static void checkPlaceHolders(String msgText) {
+        Matcher matcher = PLACE_HOLDERS_PATTERN.matcher(msgText);
+        if (matcher.find()) {
+            throw new RuntimeException("Found unresolved placeholder " + matcher.group() + " in " + msgText);
         }
     }
 }

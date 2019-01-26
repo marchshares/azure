@@ -18,6 +18,8 @@ import org.mockito.stubbing.Answer;
 import java.util.*;
 import java.util.logging.Logger;
 
+import static com.bars.orders.TestHelper.invokeContext;
+import static com.bars.orders.TestHelper.invokeRequest;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -96,28 +98,12 @@ public class NewOrderFunctionTest {
     }
 
     private static NewOrderFunction createFunc(String funcBody, boolean mockHttp) {
-        HttpRequestMessage request = mock(HttpRequestMessage.class);
-
-        final Map<String, String> queryParams = new HashMap<>();
-        queryParams.put("name", "Azure");
-        doReturn(queryParams).when(request).getQueryParameters();
-
-        final Optional<String> queryBody = Optional.of(funcBody);
-        doReturn(queryBody).when(request).getBody();
-
-        doAnswer((Answer<HttpResponseMessage.Builder>) invocation -> {
-            HttpStatus status = (HttpStatus) invocation.getArguments()[0];
-            return new HttpResponseMessageMock.HttpResponseMessageBuilderMock().status(status);
-        }).when(request).createResponseBuilder(any(HttpStatus.class));
-
-        ExecutionContext context = mock(ExecutionContext.class);
-        doReturn(Logger.getGlobal()).when(context).getLogger();
 
         MyMongoClient mongoClient = mock(MyMongoClient.class);
         when(mongoClient.getOrderIds()).thenReturn(Lists.newArrayList());
 
         // Invoke
-        NewOrderFunction httpFunc = new NewOrderFunction(request, context);
+        NewOrderFunction httpFunc = new NewOrderFunction(invokeRequest(funcBody), invokeContext());
         httpFunc.setMyMongoClient(mongoClient);
 
         if (mockHttp) {

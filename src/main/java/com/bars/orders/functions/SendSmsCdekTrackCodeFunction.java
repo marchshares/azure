@@ -16,11 +16,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.bars.orders.Utils.checkGood;
+import static com.bars.orders.Utils.checkPlaceHolders;
 
 public class SendSmsCdekTrackCodeFunction extends AbstractFunction {
     public static final String PAYMENT_ID_PATTERN = "^[0-9]{3,}$";
     public static final Pattern PHONE_PATTERN = Pattern.compile("\\+.*$");
-    public static final Pattern PLACE_HOLDERS_PATTERN = Pattern.compile("\\$\\{[^}]*}");
 
     private final CdekHttpClient cdekHttpClient;
     private final SmsAeroHttpClient smsAeroHttpClient;
@@ -33,29 +33,7 @@ public class SendSmsCdekTrackCodeFunction extends AbstractFunction {
     }
 
     @Override
-    public HttpResponseMessage run() {
-        String body = request.getBody().orElse(null);
-        if (body == null) {
-            return request.createResponseBuilder(HttpStatus.BAD_REQUEST).body("Error: Empty body received").build();
-        }
-
-        try {
-            logger.info("Incoming body: " + body);
-
-            processBody(body);
-
-        } catch (Exception e) {
-
-            logger.log(Level.WARNING, "Couldn't process request. Error " + e.toString() + ", msg: " + e.getMessage(), e);
-            logger.log(Level.WARNING, "Request body: " + request.getBody());
-
-            return request.createResponseBuilder(HttpStatus.BAD_REQUEST).body("Error " + e.toString() + ", msg: " + e.getMessage()).build();
-        }
-
-        return request.createResponseBuilder(HttpStatus.OK).body("Done").build();
-    }
-
-    private void processBody(String body) {
+    String processBody(String body) throws Exception{
         BasicDBObject jsonBody = (BasicDBObject) JSON.parse(body);
 
         String trelloCardDesc = jsonBody.getString("trelloCardDesc");
@@ -63,19 +41,14 @@ public class SendSmsCdekTrackCodeFunction extends AbstractFunction {
         String msgTemplate = jsonBody.getString("msgTemplate");
 
         String phone = getPhone(trelloCardDesc);
+        String paymentId = getPaymentId(trelloCardName);
         String cdekOrderId = getCdekOrderId(trelloCardName);
 
         String msgText = msgTemplate.replace("${cdekOrderId}", cdekOrderId);
-        checkPlaceHolders(msgText);
 
         smsAeroHttpClient.sendSms(phone, msgText);
-    }
 
-    private static void checkPlaceHolders(String msgText) {
-        Matcher matcher = PLACE_HOLDERS_PATTERN.matcher(msgText);
-        if (matcher.find()) {
-            throw new RuntimeException("Found unresolved placeholder " + matcher.group() + " in " + msgText);
-        }
+        return "paymentId=" + paymentId + " -> cdekOrderId=" + cdekOrderId + ". Sms sent";
     }
 
     public String getPhone(String trelloCardDesc) {

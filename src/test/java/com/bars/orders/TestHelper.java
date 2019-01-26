@@ -1,9 +1,24 @@
 package com.bars.orders;
 
+import com.microsoft.azure.functions.ExecutionContext;
+import com.microsoft.azure.functions.HttpRequestMessage;
+import com.microsoft.azure.functions.HttpResponseMessage;
+import com.microsoft.azure.functions.HttpStatus;
+import org.mockito.stubbing.Answer;
+
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.logging.LogManager;
+import java.util.logging.Logger;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 
 public class TestHelper {
 
@@ -23,5 +38,29 @@ public class TestHelper {
         } catch (IOException e) {
             //ignore
         }
+    }
+
+    public static HttpRequestMessage<Optional<String>> invokeRequest(String funcBody) {
+        HttpRequestMessage request = mock(HttpRequestMessage.class);
+
+        final Map<String, String> queryParams = new HashMap<>();
+        queryParams.put("name", "Azure");
+        doReturn(queryParams).when(request).getQueryParameters();
+
+        doAnswer((Answer<HttpResponseMessage.Builder>) invocation -> {
+            HttpStatus status = (HttpStatus) invocation.getArguments()[0];
+            return new HttpResponseMessageMock.HttpResponseMessageBuilderMock().status(status);
+        }).when(request).createResponseBuilder(any(HttpStatus.class));
+
+        final Optional<String> queryBody = Optional.of(funcBody);
+        doReturn(queryBody).when(request).getBody();
+
+        return (HttpRequestMessage<Optional<String>>) request;
+    }
+
+    public static ExecutionContext invokeContext() {
+        ExecutionContext context = mock(ExecutionContext.class);
+        doReturn(Logger.getGlobal()).when(context).getLogger();
+        return context;
     }
 }

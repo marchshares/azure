@@ -1,6 +1,7 @@
 package com.bars.orders;
 
 import com.bars.orders.functions.NewOrderFunction;
+import com.bars.orders.functions.SendSmsAboutOrderFunction;
 import com.bars.orders.functions.SendSmsCdekTrackCodeFunction;
 import com.microsoft.azure.functions.ExecutionContext;
 import com.microsoft.azure.functions.HttpMethod;
@@ -31,6 +32,16 @@ public class FunctionEntryPoint {
             final ExecutionContext context) {
 
         SendSmsCdekTrackCodeFunction func = new SendSmsCdekTrackCodeFunction(request, context);
+
+        return func.run();
+    }
+
+    @FunctionName("SendSms_AboutOrder")
+    public HttpResponseMessage runSendSms_AboutOrder(
+            @HttpTrigger(name = "req", methods = {HttpMethod.GET, HttpMethod.POST}, authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,
+            final ExecutionContext context) {
+
+        SendSmsAboutOrderFunction func = new SendSmsAboutOrderFunction(request, context);
 
         return func.run();
     }
