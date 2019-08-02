@@ -4,19 +4,16 @@ import com.bars.orders.http.CdekHttpClient;
 import com.bars.orders.http.SmsAeroHttpClient;
 import com.microsoft.azure.functions.ExecutionContext;
 import com.microsoft.azure.functions.HttpRequestMessage;
-import com.microsoft.azure.functions.HttpResponseMessage;
-import com.microsoft.azure.functions.HttpStatus;
 import com.mongodb.BasicDBObject;
 import com.mongodb.util.JSON;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Optional;
-import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.bars.orders.Utils.checkGood;
-import static com.bars.orders.Utils.checkPlaceHolders;
 
 public class SendSmsCdekTrackCodeFunction extends AbstractFunction {
     public static final String PAYMENT_ID_PATTERN = "^[0-9]{3,}$";
@@ -33,7 +30,7 @@ public class SendSmsCdekTrackCodeFunction extends AbstractFunction {
     }
 
     @Override
-    String processBody(String body) throws Exception{
+    String processRequest(String body, Map<String, String> headers) throws Exception{
         BasicDBObject jsonBody = (BasicDBObject) JSON.parse(body);
 
         String trelloCardDesc = jsonBody.getString("trelloCardDesc");

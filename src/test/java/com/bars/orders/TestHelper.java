@@ -1,5 +1,6 @@
 package com.bars.orders;
 
+import com.google.common.collect.Maps;
 import com.microsoft.azure.functions.ExecutionContext;
 import com.microsoft.azure.functions.HttpRequestMessage;
 import com.microsoft.azure.functions.HttpResponseMessage;
@@ -16,9 +17,7 @@ import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 
 public class TestHelper {
 
@@ -41,11 +40,11 @@ public class TestHelper {
     }
 
     public static HttpRequestMessage<Optional<String>> invokeRequest(String funcBody) {
-        HttpRequestMessage request = mock(HttpRequestMessage.class);
+        HttpRequestMessage<Optional<String>> request = mock(HttpRequestMessage.class);
 
         final Map<String, String> queryParams = new HashMap<>();
         queryParams.put("name", "Azure");
-        doReturn(queryParams).when(request).getQueryParameters();
+        when(request.getQueryParameters()).thenReturn(queryParams);
 
         doAnswer((Answer<HttpResponseMessage.Builder>) invocation -> {
             HttpStatus status = (HttpStatus) invocation.getArguments()[0];
@@ -53,9 +52,11 @@ public class TestHelper {
         }).when(request).createResponseBuilder(any(HttpStatus.class));
 
         final Optional<String> queryBody = Optional.of(funcBody);
-        doReturn(queryBody).when(request).getBody();
+        when(request.getBody()).thenReturn(queryBody);
 
-        return (HttpRequestMessage<Optional<String>>) request;
+        when(request.getHeaders()).thenReturn(Maps.newHashMap());
+
+        return request;
     }
 
     public static ExecutionContext invokeContext() {

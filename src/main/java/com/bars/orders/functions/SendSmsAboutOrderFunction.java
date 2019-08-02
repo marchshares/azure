@@ -1,21 +1,14 @@
 package com.bars.orders.functions;
 
-import com.bars.orders.http.CdekHttpClient;
 import com.bars.orders.http.SmsAeroHttpClient;
-import com.bars.orders.mongo.MyMongoClient;
 import com.microsoft.azure.functions.ExecutionContext;
 import com.microsoft.azure.functions.HttpRequestMessage;
 import com.mongodb.BasicDBObject;
 import com.mongodb.util.JSON;
 
-import java.util.Arrays;
+import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import static com.bars.orders.Utils.checkGood;
-import static com.bars.orders.Utils.checkPlaceHolders;
 
 public class SendSmsAboutOrderFunction extends AbstractFunction {
     public static final String YES = "yes";
@@ -28,7 +21,7 @@ public class SendSmsAboutOrderFunction extends AbstractFunction {
     }
 
     @Override
-    String processBody(String body) throws Exception{
+    String processRequest(String body, Map<String, String> headers) throws Exception{
         BasicDBObject jsonBody = (BasicDBObject) JSON.parse(body);
 
         String paymentId = jsonBody.getString("paymentId");

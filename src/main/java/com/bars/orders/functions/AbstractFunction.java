@@ -1,13 +1,11 @@
 package com.bars.orders.functions;
 
-import com.bars.orders.http.SimpleHttpClient;
-import com.bars.orders.json.Order;
-import com.bars.orders.mongo.MyMongoClient;
 import com.microsoft.azure.functions.ExecutionContext;
 import com.microsoft.azure.functions.HttpRequestMessage;
 import com.microsoft.azure.functions.HttpResponseMessage;
 import com.microsoft.azure.functions.HttpStatus;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -31,9 +29,10 @@ public abstract class AbstractFunction {
         }
 
         try {
+            logger.info("Incoming headers: " + request.getHeaders());
             logger.info("Incoming body: " + body);
 
-            String msgSuccess = processBody(body);
+            String msgSuccess = processRequest(body, request.getHeaders());
 
             return request.createResponseBuilder(HttpStatus.OK).body(msgSuccess).build();
         } catch (Exception e) {
@@ -45,5 +44,5 @@ public abstract class AbstractFunction {
         }
     }
 
-    abstract String processBody(String body) throws Exception;
+    abstract String processRequest(String body, Map<String, String> headers) throws Exception;
 }

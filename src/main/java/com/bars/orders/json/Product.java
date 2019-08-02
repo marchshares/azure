@@ -150,10 +150,11 @@ public class Product extends AbstractObject {
             }
 
             if (isCase) {
-                String caseName = hasSize() ? getSize() : remappedName;
-                remappedName = extTrim(caseName
-                        .replaceAll("\\(.*\\)", ""));
+                remappedName = hasSize() ? getSize() : remappedName;
             }
+
+            remappedName = extTrim(remappedName
+                    .replaceAll("\\(.*\\)", ""));
         }
 
         if (!originalName.equals(remappedName)) {

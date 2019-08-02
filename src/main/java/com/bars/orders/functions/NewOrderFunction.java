@@ -45,10 +45,12 @@ public class NewOrderFunction extends AbstractFunction{
     }
 
     @Override
-    String processBody(String body) throws Exception{
+    String processRequest(String body, Map<String, String> headers) throws Exception{
         String decodedBody = URLDecoder.decode(body, "UTF-8");
 
         order = new Order(decodedBody, context);
+        enrichFromHeaders(headers);
+
         String orderId = order.getOrderId();
 
         List<String> orderIds = myMongoClient.getOrderIds();
@@ -67,6 +69,11 @@ public class NewOrderFunction extends AbstractFunction{
         }
 
         return "Done";
+    }
+
+    private void enrichFromHeaders(Map<String, String> headers) {
+        String referer = headers.get("referer");
+        order.setReferer(referer);
     }
 
     public void processOrder() {

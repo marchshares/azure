@@ -6,6 +6,7 @@ import com.microsoft.azure.functions.ExecutionContext;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import javax.annotation.Nullable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -76,6 +77,12 @@ public class Order extends AbstractObject {
 
     public void setOrderDescription(String orderDescription) {
         head.put("orderDescription", orderDescription);
+    }
+
+    public void setReferer(@Nullable String referer) {
+        if (referer != null) {
+            head.put("referer", referer);
+        }
     }
 
     public String toArrayJson(){
