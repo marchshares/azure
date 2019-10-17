@@ -2,6 +2,7 @@ package com.bars.orders.mongo;
 
 
 import com.bars.orders.json.Order;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
@@ -9,26 +10,26 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.Indexes;
+import com.mongodb.client.result.DeleteResult;
 import org.bson.Document;
 
 import java.util.List;
-import java.util.logging.Logger;
+import java.util.Map;
 
+import static com.bars.orders.GlobalLogger.glogger;
 import static com.bars.orders.PropertiesHelper.getSystemProp;
 import static com.mongodb.client.model.Projections.include;
 
 public class MyMongoClient {
     public static final String ORDER_ID_KEY = "orderId";
-    public static final String ORDERS_COLLECTION_NAME = "orders";
-    public static final String DATABASE_NAME = "db";
-    private final Logger logger;
 
     MongoCollection<Document> ordersCol;
 
     private String uri;
+    private String ordersDatabase = "db-8bars";
+    private String ordersCollection = "orders";
 
-    public MyMongoClient(Logger logger) {
-        this.logger = logger;
+    public MyMongoClient() {
         uri = getSystemProp("MongoURI");
     }
 
@@ -36,17 +37,25 @@ public class MyMongoClient {
         this.uri = uri;
     }
 
+    public void setOrdersDatabase(String ordersDatabase) {
+        this.ordersDatabase = ordersDatabase;
+    }
+
+    public void setOrdersCollection(String ordersCollection) {
+        this.ordersCollection = ordersCollection;
+    }
+
     public void init() {
 
-        logger.info("Connecting to Mongo..., uri: " + uri);
+        glogger.info("Connecting to Mongo..., uri: " + uri);
         MongoClient mongoClient = new MongoClient(new MongoClientURI(uri));
 
-        MongoDatabase database = mongoClient.getDatabase(DATABASE_NAME);
+        MongoDatabase database = mongoClient.getDatabase(ordersDatabase);
 
-        ordersCol = database.getCollection(ORDERS_COLLECTION_NAME);
-        //ordersCol.createIndex(Indexes.ascending(ORDER_ID_KEY), new IndexOptions().unique(true));
+        ordersCol = database.getCollection(ordersCollection);
+        ordersCol.createIndex(Indexes.ascending(ORDER_ID_KEY), new IndexOptions().unique(true));
 
-        logger.info("Successfully connected to Mongo");
+        glogger.info("Successfully connected to Mongo");
     }
 
     public List<String> getOrderIds() {
@@ -63,6 +72,17 @@ public class MyMongoClient {
     public void storeOrder(Order order) {
         ordersCol.insertOne(new Document(order.toMap()));
 
-        logger.info("Order " + order.getOrderId()+ " stored to Mongo");
+        glogger.info("Order " + order.getOrderId()+ " stored to Mongo");
+    }
+
+    public void removeOrder(String orderId) {
+        Map<String, Object> bson = ImmutableMap.of(ORDER_ID_KEY, orderId);
+        DeleteResult deleteResult = ordersCol.deleteOne(new Document(bson));
+
+        if (deleteResult.getDeletedCount() >= 1) {
+            glogger.info("Order " + orderId+ " removed from Mongo");
+        } else {
+            glogger.warning("Order " + orderId+ " NOT removed from Mongo");
+        }
     }
 }

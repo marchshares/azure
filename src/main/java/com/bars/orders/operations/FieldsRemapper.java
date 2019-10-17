@@ -1,10 +1,8 @@
 package com.bars.orders.operations;
 
+import com.bars.orders.FunctionEntryPoint;
 import com.bars.orders.json.Order;
-import com.bars.orders.json.Product;
 import com.google.common.collect.Maps;
-import com.microsoft.azure.functions.ExecutionContext;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.Map;
@@ -12,6 +10,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import static com.bars.orders.GlobalLogger.glogger;
 import static com.google.common.collect.ImmutableMap.of;
 import static java.lang.String.valueOf;
 
@@ -29,8 +28,6 @@ public class FieldsRemapper {
     public static final String NANOPRESSO_PATROL_NAME = "Nanopresso Patrol";
     public static final String BLACK_COLOR_NAME = "Black";
 
-    private final Logger log;
-
     public static final Map<String, String> mapProductNames = Maps.newHashMap();
 
     public static final Map<String, String> mapRUColorOnEngColor = of(
@@ -40,8 +37,7 @@ public class FieldsRemapper {
             "Черный",      "Black"
     );
 
-    public FieldsRemapper(ExecutionContext context) {
-        log = context.getLogger();
+    public FieldsRemapper() {
     }
 
     public void setOrderDescription(Order order) {
@@ -65,7 +61,7 @@ public class FieldsRemapper {
         String deliveryCompany    = UNDEFINED_VALUE;
         String fullDeliveryCost   = UNDEFINED_VALUE;
 
-        log.info("Remap delivery for " + order.getOrderId());
+        glogger.info("Remap delivery for " + order.getOrderId());
         JSONObject jsonObject = order.getHead();
 
         if (jsonObject.has("deliveryClientCost")) {
@@ -97,7 +93,7 @@ public class FieldsRemapper {
             deliveryCompany = CDEK_NAME_LABEL;
 
         } else {
-            log.log(Level.WARNING, "Unknown delivery type: " + originalDeliveryType);
+            glogger.log(Level.WARNING, "Unknown delivery type: " + originalDeliveryType);
             return;
         }
 

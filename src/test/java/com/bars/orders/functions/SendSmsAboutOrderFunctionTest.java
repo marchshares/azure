@@ -7,7 +7,6 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import static com.bars.orders.TestHelper.invokeContext;
 import static com.bars.orders.TestHelper.invokeRequest;
 import static org.junit.Assert.*;
 
@@ -22,8 +21,7 @@ public class SendSmsAboutOrderFunctionTest {
     @Test
     public void testFunc() {
         SendSmsAboutOrderFunction func = new SendSmsAboutOrderFunction(
-                invokeRequest(testJsonBody),
-                invokeContext()
+                invokeRequest(testJsonBody)
         );
         HttpResponseMessage res = func.run();
 

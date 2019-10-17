@@ -1,12 +1,11 @@
 package com.bars.orders.operations;
 
 
+import com.bars.orders.FunctionEntryPoint;
 import com.bars.orders.Utils;
 import com.bars.orders.json.Order;
 import com.bars.orders.json.Product;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import com.microsoft.azure.functions.ExecutionContext;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -16,6 +15,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import static com.bars.orders.GlobalLogger.glogger;
 import static com.bars.orders.operations.FieldsRemapper.BLACK_COLOR_NAME;
 import static com.bars.orders.operations.FieldsRemapper.NANOPRESSO_NAME;
 import static com.bars.orders.operations.FieldsRemapper.NANOPRESSO_PATROL_NAME;
@@ -30,21 +30,18 @@ public class SetSplitter {
 
     public static final String NANO_SET_NAME = "Nanopresso Set";
 
-    private final Logger log;
-
-    public SetSplitter(ExecutionContext context) {
-        this.log = context.getLogger();
+    public SetSplitter() {
     }
 
     public void splitSets(Order order) {
-        log.info("Split sets for " + order.getOrderId());
+        glogger.info("Split sets for " + order.getOrderId());
         List<Product> result = Lists.newArrayList();
 
         order.getProducts().forEach(product -> {
             String name = product.getName();
 
             if (StringUtils.isEmpty(name)) {
-                log.log(Level.WARNING, "Product has empty name: " + product);
+                glogger.log(Level.WARNING, "Product has empty name: " + product);
                 return;
             }
 
@@ -69,7 +66,7 @@ public class SetSplitter {
                 break;
 
             default:
-                log.log(Level.WARNING, shortSetName + " is unknown Set!");
+                glogger.log(Level.WARNING, shortSetName + " is unknown Set!");
                 return Lists.newArrayList(product);
         }
 
@@ -93,17 +90,17 @@ public class SetSplitter {
 
     private List<Product> processNanopressoSet(Product setAsProduct) {
         String setName = setAsProduct.getName();
-        log.info("Process " + setName);
+        glogger.info("Process " + setName);
 
         if (!setAsProduct.hasColor()) {
-            log.warning(setName + " should has color");
+            glogger.warning(setName + " should has color");
             return Collections.emptyList();
         }
 
         String mainProductInSet = BLACK_COLOR_NAME.equals(setAsProduct.getColor())
                         ? NANOPRESSO_NAME
                         : NANOPRESSO_PATROL_NAME;
-        log.info("Set: mainProduct: " + mainProductInSet);
+        glogger.info("Set: mainProduct: " + mainProductInSet);
 
         Product mainSetComponent = setAsProduct.createMainSetComponent(mainProductInSet);
         List<Product> result = Lists.newArrayList(mainSetComponent);
@@ -116,7 +113,7 @@ public class SetSplitter {
                     String variant = option.getString("variant");
 
                     if (StringUtils.isEmpty(variant)) {
-                        log.log(Level.WARNING, "Variant is empty for option: " + Utils.toString(option));
+                        glogger.log(Level.WARNING, "Variant is empty for option: " + Utils.toString(option));
                         return;
                     }
                     String variantTrim = variant.trim();
@@ -135,7 +132,7 @@ public class SetSplitter {
         return Arrays.stream(variant.split("\\+"))
                 .filter(componentName -> !NO_MARK.equalsIgnoreCase(componentName))
                 .map(componentName -> {
-                    log.info("Set: " + variant + " -> " + componentName);
+                    glogger.info("Set: " + variant + " -> " + componentName);
                     return setAsProduct.createSetComponent(componentName);
                 }).collect(Collectors.toList());
     }

@@ -2,7 +2,6 @@ package com.bars.orders.json;
 
 
 import com.bars.orders.Utils;
-import com.microsoft.azure.functions.ExecutionContext;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -26,14 +25,14 @@ public class Order extends AbstractObject {
         dateFormat.setTimeZone(TimeZone.getTimeZone("Europe/Moscow"));
     }
 
-    public Order(String bodyLine, ExecutionContext context) {
-        super(new Converter().bodyLineToJsonObject(bodyLine), context);
+    public Order(String bodyLine) {
+        super(new Converter().bodyLineToJsonObject(bodyLine));
 
         this.payment = head.getJSONObject("payment");
 
         this.products = Utils.jsonArrayToStream(payment.getJSONArray("products"))
                 .map(obj -> (JSONObject) obj)
-                .map(jsonObject -> new Product(jsonObject, context))
+                .map(jsonObject -> new Product(jsonObject))
                 .collect(Collectors.toList());;
 
         String[] dateTimeValue = dateFormat.format(new Date()).split(" ");
@@ -70,10 +69,13 @@ public class Order extends AbstractObject {
         payment.put("products", jsonArray);
     }
 
-    public String getOrderId() {
-        return getPayment().getString("orderid");
+    public void setOrderId(String orderId) {
+        head.put(ORDER_ID_KEY, orderId);
     }
 
+    public String getOrderId() {
+        return head.getString(ORDER_ID_KEY);
+    }
 
     public void setOrderDescription(String orderDescription) {
         head.put("orderDescription", orderDescription);

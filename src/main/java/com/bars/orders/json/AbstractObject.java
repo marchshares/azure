@@ -1,36 +1,25 @@
 package com.bars.orders.json;
 
 
-import com.microsoft.azure.functions.ExecutionContext;
+import com.bars.orders.FunctionEntryPoint;
 import org.json.JSONObject;
 
 import java.util.Map;
-import java.util.logging.Logger;
 
 public abstract class AbstractObject {
-    final Logger log;
-
-    final ExecutionContext context;
 
     protected final JSONObject head;
 
-    protected AbstractObject(ExecutionContext context) {
-        this(new JSONObject(), context);
+    protected AbstractObject() {
+        this(new JSONObject());
     }
 
-    protected AbstractObject(JSONObject head, ExecutionContext context) {
+    protected AbstractObject(JSONObject head) {
         this.head = head;
-
-        this.context = context;
-        this.log = context.getLogger();
     }
 
     public JSONObject getHead() {
         return head;
-    }
-
-    public Logger getLogger() {
-        return log;
     }
 
     public Map<String, Object> toMap() {

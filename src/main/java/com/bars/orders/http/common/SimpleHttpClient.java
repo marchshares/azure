@@ -1,4 +1,6 @@
-package com.bars.orders.http;
+package com.bars.orders.http.common;
+
+import com.bars.orders.FunctionEntryPoint;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,34 +14,26 @@ import java.util.Base64;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.bars.orders.PropertiesHelper.getSystemProp;
+import static com.bars.orders.GlobalLogger.glogger;
 
 public class SimpleHttpClient {
-    final Logger logger;
+    private String requestContentType;
+    private String authTokenEncoded;
 
-    private String zapierProductsUrl;
-
-    String requestContentType;
-
-    public SimpleHttpClient(Logger logger) {
-        this.logger = logger;
-
-        this.zapierProductsUrl = getSystemProp("ZapierProductsWebhookUrl");
-
-        this.requestContentType = "application/json";
+    public SimpleHttpClient() {
     }
 
-    public void sendZapier(String body) {
-        sendPost(zapierProductsUrl, body);
+    public void setRequestContentType(String requestContentType) {
+        this.requestContentType = requestContentType;
     }
 
-    SimpleHttpResponse sendPost(String url, String body) {
-        return sendPost(url, body, null);
+    public void setAuthToken(String authToken) {
+        this.authTokenEncoded = getEncodedToken(authToken);
     }
 
-    SimpleHttpResponse sendPost(String url, String body, String encodedAuthToken) {
+    public SimpleHttpResponse sendPost(String url, String body) {
         if (url == null) {
-            logger.warning("URL is null. Request wasn't send");
+            glogger.warning("URL is null. Request wasn't send");
             return SimpleHttpResponse.createBad();
         }
 
@@ -48,18 +42,21 @@ public class SimpleHttpClient {
             HttpURLConnection http = (HttpURLConnection) con;
             http.setRequestMethod("POST");
             http.setDoOutput(true);
-            if (encodedAuthToken != null) {
-                http.setRequestProperty("Authorization", "Basic " + encodedAuthToken);
-            }
             byte[] out = body.getBytes(StandardCharsets.UTF_8);
             int length = out.length;
 
             http.setFixedLengthStreamingMode(length);
-            http.setRequestProperty("Content-Type", requestContentType);
+
+            if (requestContentType != null) {
+                http.setRequestProperty("Content-Type", requestContentType);
+            }
+            if (authTokenEncoded != null) {
+                http.setRequestProperty("Authorization", "Basic " + authTokenEncoded);
+            }
             http.setRequestProperty("charset", "utf-8");
 
-            logger.info("connect to: " + url);
-            logger.info("body: " + body);
+            glogger.info("connect to: " + url);
+            glogger.info("body: " + body);
             http.connect();
 
             try (OutputStream os = http.getOutputStream()) {
@@ -67,12 +64,12 @@ public class SimpleHttpClient {
                 os.flush();
 
                 String content = readFully(http);
-                logger.info("responseContent: " + content);
+                glogger.info("responseContent: " + content);
 
                 if (http.getResponseCode() == 200) {
-                    logger.info("Received OK!");
+                    glogger.info("Received OK!");
                 } else {
-                    logger.log(Level.WARNING, "Received bad response code: " + http.getResponseCode() + ", msg: " + http.getResponseMessage());
+                    glogger.log(Level.WARNING, "Received bad response code: " + http.getResponseCode() + ", msg: " + http.getResponseMessage());
                 }
 
                 return new SimpleHttpResponse(http.getResponseCode(), content);
@@ -80,7 +77,7 @@ public class SimpleHttpClient {
                 http.disconnect();
             }
         } catch (Exception ex) {
-            logger.log(Level.WARNING, "ERROR msg: " + ex.getMessage(), ex);
+            glogger.log(Level.WARNING, "ERROR msg: " + ex.getMessage(), ex);
             return SimpleHttpResponse.createBad();
         }
 
@@ -93,6 +90,10 @@ public class SimpleHttpClient {
         public SimpleHttpResponse(int responseCode, String content) {
             this.responseCode = responseCode;
             this.content = content;
+        }
+
+        public String getContent() {
+            return content;
         }
 
         public static SimpleHttpResponse createBad() {
@@ -121,11 +122,12 @@ public class SimpleHttpClient {
     }
 
 
-    String getEncodedToken(String authToken) {
+    public String getEncodedToken(String authToken) {
         try {
+
             return Base64.getEncoder().encodeToString(authToken.getBytes("UTF-8"));
         } catch (Exception e) {
-            logger.log(Level.WARNING, "cound't encode auth token " + authToken + ", cause " + e.getMessage());
+            glogger.log(Level.WARNING, "cound't encode auth token " + authToken + ", cause " + e.getMessage());
             return null;
         }
     }

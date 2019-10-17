@@ -1,20 +1,19 @@
 package com.bars.orders.http;
 
-import com.sun.org.apache.xerces.internal.parsers.DOMParser;
+import com.bars.orders.http.common.SimpleHttpClient;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-import javax.xml.bind.JAXB;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.StringReader;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.logging.Logger;
 
+import static com.bars.orders.GlobalLogger.glogger;
 import static com.bars.orders.PropertiesHelper.getSystemProp;
 
 public class CdekHttpClient extends SimpleHttpClient {
@@ -28,14 +27,13 @@ public class CdekHttpClient extends SimpleHttpClient {
 
     private static final SimpleDateFormat dateXmlFormatter = new SimpleDateFormat("yyyy-MM-dd");
 
-    public CdekHttpClient(Logger logger) {
-        super(logger);
+    public CdekHttpClient() {
+        super();
+        setRequestContentType("application/x-www-form-urlencoded");
 
         this.cdekBaseUrl = getSystemProp("CdekBaseUrl");
         this.cdekAccount = getSystemProp("CdekAccount");
         this.cdekSecure = getSystemProp("CdekSecure");
-
-        this.requestContentType = "application/x-www-form-urlencoded";
 
         resolveRequestXmls();
     }
@@ -69,7 +67,7 @@ public class CdekHttpClient extends SimpleHttpClient {
             throw new RuntimeException("cdekOrderId=" + cdekOrderId + "not in pattern=" + CDEK_ORDER_ID_PATTERN);
         }
 
-        logger.info("cdekOrderId:" + cdekOrderId);
+        glogger.info("cdekOrderId:" + cdekOrderId);
 
         return cdekOrderId;
     }
@@ -87,7 +85,7 @@ public class CdekHttpClient extends SimpleHttpClient {
         try {
             return DocumentBuilderFactory.newInstance()
                     .newDocumentBuilder()
-                    .parse(new InputSource(new StringReader(response.content)));
+                    .parse(new InputSource(new StringReader(response.getContent())));
 
         } catch (Exception e) {
             throw new RuntimeException("Couldn't parse CDEK response: " + response, e);

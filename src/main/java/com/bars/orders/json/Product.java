@@ -1,10 +1,10 @@
 package com.bars.orders.json;
 
 
-import com.microsoft.azure.functions.ExecutionContext;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import static com.bars.orders.GlobalLogger.glogger;
 import static com.bars.orders.Utils.extTrim;
 import static com.bars.orders.operations.FieldsRemapper.BLACK_COLOR_NAME;
 import static com.bars.orders.operations.FieldsRemapper.mapProductNames;
@@ -28,8 +28,8 @@ public class Product extends AbstractObject {
     private boolean isCase;
     private boolean isAccessory;
 
-    protected Product(JSONObject head, ExecutionContext context) {
-        super(head, context);
+    protected Product(JSONObject head) {
+        super(head);
         this.originalName = head.getString("name");
         head.put("originalName", originalName);
 
@@ -158,7 +158,7 @@ public class Product extends AbstractObject {
         }
 
         if (!originalName.equals(remappedName)) {
-            log.info("Remap name: " + originalName + " -> " + remappedName);
+            glogger.info("Remap name: " + originalName + " -> " + remappedName);
             setName(remappedName);
         }
     }
@@ -234,7 +234,7 @@ public class Product extends AbstractObject {
             jsonObject.put("size", getSize());
         }
 
-        return new Product(jsonObject, context);
+        return new Product(jsonObject);
     }
 
     public Product createSetComponent(String componentName) {
@@ -248,7 +248,7 @@ public class Product extends AbstractObject {
         jsonObject.put("price",     "0");
         jsonObject.put("amount",    "0");
 
-        return new Product(jsonObject, context);
+        return new Product(jsonObject);
     }
 
     public Product makeCopy() {
@@ -259,6 +259,6 @@ public class Product extends AbstractObject {
         jsonObject.put("price",     getPrice());
         jsonObject.put("amount",    getAmount());
 
-        return new Product(jsonObject, context);
+        return new Product(jsonObject);
     }
 }

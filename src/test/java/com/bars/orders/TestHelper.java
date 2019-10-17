@@ -58,10 +58,4 @@ public class TestHelper {
 
         return request;
     }
-
-    public static ExecutionContext invokeContext() {
-        ExecutionContext context = mock(ExecutionContext.class);
-        doReturn(Logger.getGlobal()).when(context).getLogger();
-        return context;
-    }
 }

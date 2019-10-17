@@ -2,7 +2,6 @@ package com.bars.orders.functions;
 
 import com.bars.orders.http.CdekHttpClient;
 import com.bars.orders.http.SmsAeroHttpClient;
-import com.microsoft.azure.functions.ExecutionContext;
 import com.microsoft.azure.functions.HttpRequestMessage;
 import com.mongodb.BasicDBObject;
 import com.mongodb.util.JSON;
@@ -13,6 +12,7 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.bars.orders.GlobalLogger.glogger;
 import static com.bars.orders.Utils.checkGood;
 
 public class SendSmsCdekTrackCodeFunction extends AbstractFunction {
@@ -22,11 +22,11 @@ public class SendSmsCdekTrackCodeFunction extends AbstractFunction {
     private final CdekHttpClient cdekHttpClient;
     private final SmsAeroHttpClient smsAeroHttpClient;
 
-    public SendSmsCdekTrackCodeFunction(HttpRequestMessage<Optional<String>> request, ExecutionContext context) {
-        super(request, context);
+    public SendSmsCdekTrackCodeFunction(HttpRequestMessage<Optional<String>> request) {
+        super(request);
 
-        this.cdekHttpClient = new CdekHttpClient(logger);
-        this.smsAeroHttpClient = new SmsAeroHttpClient(logger);
+        this.cdekHttpClient = new CdekHttpClient();
+        this.smsAeroHttpClient = new SmsAeroHttpClient();
     }
 
     @Override
@@ -73,7 +73,7 @@ public class SendSmsCdekTrackCodeFunction extends AbstractFunction {
             throw new RuntimeException("Not a paymentId: " + paymentId);
         }
 
-        logger.info("paymentId:" + paymentId);
+        glogger.info("paymentId:" + paymentId);
 
         return paymentId;
     }

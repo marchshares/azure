@@ -1,7 +1,6 @@
 package com.bars.orders.functions;
 
 import com.bars.orders.http.SmsAeroHttpClient;
-import com.microsoft.azure.functions.ExecutionContext;
 import com.microsoft.azure.functions.HttpRequestMessage;
 import com.mongodb.BasicDBObject;
 import com.mongodb.util.JSON;
@@ -10,14 +9,16 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
 
+import static com.bars.orders.GlobalLogger.glogger;
+
 public class SendSmsAboutOrderFunction extends AbstractFunction {
     public static final String YES = "yes";
     private final SmsAeroHttpClient smsAeroHttpClient;
 
-    public SendSmsAboutOrderFunction(HttpRequestMessage<Optional<String>> request, ExecutionContext context) {
-        super(request, context);
+    public SendSmsAboutOrderFunction(HttpRequestMessage<Optional<String>> request) {
+        super(request);
 
-        this.smsAeroHttpClient = new SmsAeroHttpClient(logger);
+        this.smsAeroHttpClient = new SmsAeroHttpClient();
     }
 
     @Override
@@ -31,7 +32,7 @@ public class SendSmsAboutOrderFunction extends AbstractFunction {
 
         if(! YES.equals(sendSmsAboutOrder)) {
             String msg = "sendSmsAboutOrder=" + sendSmsAboutOrder + ", skip sending";
-            logger.log(Level.INFO, msg);
+            glogger.log(Level.INFO, msg);
             return msg;
         }
 

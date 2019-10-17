@@ -1,24 +1,15 @@
 package com.bars.orders.functions;
 
-import com.bars.orders.HttpResponseMessageMock;
 import com.bars.orders.TestHelper;
-import com.microsoft.azure.functions.ExecutionContext;
-import com.microsoft.azure.functions.HttpRequestMessage;
 import com.microsoft.azure.functions.HttpResponseMessage;
 import com.microsoft.azure.functions.HttpStatus;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.mockito.stubbing.Answer;
 
-import java.util.Optional;
-import java.util.logging.Logger;
-
-import static com.bars.orders.TestHelper.invokeContext;
 import static com.bars.orders.TestHelper.invokeRequest;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.mock;
 
 public class SendSmsCdekTrackCodeFunctionTest {
@@ -32,8 +23,7 @@ public class SendSmsCdekTrackCodeFunctionTest {
     @Test
     public void testFunc() {
         SendSmsCdekTrackCodeFunction func = new SendSmsCdekTrackCodeFunction(
-                invokeRequest(testJsonBody),
-                invokeContext()
+                invokeRequest(testJsonBody)
         );
         HttpResponseMessage res = func.run();
 
