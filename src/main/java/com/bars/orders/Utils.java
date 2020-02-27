@@ -17,8 +17,15 @@ public class Utils {
         return StreamSupport.stream(arr.spliterator(), false);
     }
 
+    public static String extTrimLower(String str) {
+        return extTrim(str).toLowerCase();
+    }
+
     public static String extTrim(String str) {
-        return str.replaceAll("\\s{2,}", " ").trim();
+        return str
+                .replaceAll("\\(.*\\)", "")
+                .replaceAll("\\s{2,}", " ")
+                .trim();
     }
 
     public static boolean isContainsSubName(String name, String subName) {

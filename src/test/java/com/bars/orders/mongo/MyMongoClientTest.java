@@ -1,15 +1,13 @@
 package com.bars.orders.mongo;
 
-import com.bars.orders.FunctionEntryPoint;
 import com.bars.orders.TestHelper;
-import com.bars.orders.json.Order;
-import com.bars.orders.json.OrderTest;
+import com.bars.orders.order.Order;
+import com.bars.orders.order.OrderProcessorTest;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
-import java.util.logging.Logger;
 
 import static com.bars.orders.GlobalLogger.glogger;
 import static org.junit.Assert.assertTrue;
@@ -37,7 +35,7 @@ public class MyMongoClientTest {
 
     @Test
     public void testInsert() {
-        Order testOrder = OrderTest.createTestOrder();
+        Order testOrder = OrderProcessorTest.createTestOrder();
 
         myMongoClient.storeOrder(testOrder);
         List<String> orderIds = myMongoClient.getOrderIds();

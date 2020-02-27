@@ -22,7 +22,7 @@ public class FunctionEntryPoint {
     @FunctionName("HttpTrigger-Java")
     public HttpResponseMessage run(
             @HttpTrigger(name = "req", methods = {HttpMethod.GET, HttpMethod.POST}, authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,
-            final ExecutionContext context) {
+            final ExecutionContext context) throws Exception {
         setLoggerFromContext(context);
 
         NewOrderFunction func = new NewOrderFunction(request);

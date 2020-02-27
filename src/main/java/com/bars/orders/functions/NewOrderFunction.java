@@ -5,11 +5,13 @@ import java.util.*;
 import java.util.logging.Level;
 
 import com.bars.orders.http.ZapierHttpClient;
-import com.bars.orders.json.Order;
+import com.bars.orders.json.Converter;
+import com.bars.orders.order.Order;
+import com.bars.orders.order.OrderProcessor;
 import com.bars.orders.mongo.MyMongoClient;
-import com.bars.orders.operations.FieldsRemapper;
-import com.bars.orders.operations.SetSplitter;
+import com.bars.orders.product.desc.ProductDescManager;
 import com.microsoft.azure.functions.*;
+import org.json.JSONObject;
 
 import static com.bars.orders.GlobalLogger.glogger;
 
@@ -20,6 +22,8 @@ public class NewOrderFunction extends AbstractFunction{
 
     private MyMongoClient myMongoClient;
     private ZapierHttpClient zapierHttpClient;
+    private OrderProcessor orderProcessor;
+    private ProductDescManager productDescManager;
 
     private Order order;
 
@@ -28,41 +32,45 @@ public class NewOrderFunction extends AbstractFunction{
 
         this.myMongoClient = new MyMongoClient();
         this.zapierHttpClient = new ZapierHttpClient();
+        this.productDescManager = new ProductDescManager();
+
+        this.orderProcessor = new OrderProcessor();
+        orderProcessor.setDescManager(productDescManager);
+    }
+
+    public void init() throws Exception {
+        myMongoClient.init();
+        productDescManager.init();
     }
 
     public void setMyMongoClient(MyMongoClient myMongoClient) {
         this.myMongoClient = myMongoClient;
     }
 
-    public MyMongoClient getMyMongoClient() {
-        return myMongoClient;
-    }
-
     public void setZapierHttpClient(ZapierHttpClient zapierHttpClient) {
         this.zapierHttpClient = zapierHttpClient;
+    }
+
+    public MyMongoClient getMyMongoClient() {
+        return myMongoClient;
     }
 
     public Order getOrder() {
         return order;
     }
 
-    public void init() {
-        myMongoClient.init();
-    }
-
     @Override
     String processRequest(String body, Map<String, String> headers) throws Exception{
         String decodedBody = URLDecoder.decode(body, "UTF-8");
+        JSONObject orderJson = Converter.bodyLineToJsonObject(decodedBody);
 
-        order = new Order(decodedBody);
-        enrichFromHeaders(headers);
-
+        order = new Order(orderJson);
         String orderId = order.getOrderId();
 
         List<String> orderIds = myMongoClient.getOrderIds();
         if (! orderIds.contains(orderId)) {
             glogger.info("Received new order " + orderId);
-            processOrder();
+            orderProcessor.process(order, headers);
 
             myMongoClient.storeOrder(order);
 
@@ -74,18 +82,5 @@ public class NewOrderFunction extends AbstractFunction{
         }
 
         return "Done";
-    }
-
-    private void enrichFromHeaders(Map<String, String> headers) {
-        String referer = headers.get("referer");
-        order.setReferer(referer);
-    }
-
-    public void processOrder() {
-        new SetSplitter().splitSets(order);
-        FieldsRemapper fieldsRemapper = new FieldsRemapper();
-
-        fieldsRemapper.remapDelivery(order);
-        fieldsRemapper.setOrderDescription(order);
     }
 }

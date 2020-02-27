@@ -1,15 +1,14 @@
-package com.bars.orders.json;
+package com.bars.orders.order;
 
 
-import com.bars.orders.Utils;
+import com.bars.orders.json.AbstractObject;
+import com.bars.orders.product.Product;
+import com.google.common.annotations.VisibleForTesting;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.annotation.Nullable;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 import static com.bars.orders.mongo.MyMongoClient.ORDER_ID_KEY;
@@ -18,31 +17,11 @@ public class Order extends AbstractObject {
 
     private final JSONObject payment;
     private List<Product> products;
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-    private static final SimpleDateFormat shortDateFormat = new SimpleDateFormat("dd.MM");
-    private static final SimpleDateFormat mongoDateFormat = new SimpleDateFormat("yyyy.MM.dd");
-    static {
-        dateFormat.setTimeZone(TimeZone.getTimeZone("Europe/Moscow"));
-    }
 
-    public Order(String bodyLine) {
-        super(new Converter().bodyLineToJsonObject(bodyLine));
-
+    public Order(JSONObject orderJson) {
+        super(orderJson);
         this.payment = head.getJSONObject("payment");
-
-        this.products = Utils.jsonArrayToStream(payment.getJSONArray("products"))
-                .map(obj -> (JSONObject) obj)
-                .map(jsonObject -> new Product(jsonObject))
-                .collect(Collectors.toList());;
-
-        String[] dateTimeValue = dateFormat.format(new Date()).split(" ");
-
-        head.put("date", dateTimeValue[0]);
-        head.put("time", dateTimeValue[1]);
-
         head.put(ORDER_ID_KEY, payment.getString("orderid"));
-        head.put("shortDate", shortDateFormat.format(new Date()));
-        head.put("mongoDate", mongoDateFormat.format(new Date()));
     }
 
     public JSONObject getPayment() {
@@ -61,15 +40,16 @@ public class Order extends AbstractObject {
         this.products = newProducts;
 
         JSONArray jsonArray = new JSONArray(
-                products.stream()
-                        .map(product -> product.head)
+                newProducts.stream()
+                        .map(AbstractObject::getHead)
                         .collect(Collectors.toList())
         );
 
         payment.put("products", jsonArray);
     }
 
-    public void setOrderId(String orderId) {
+    @VisibleForTesting
+    void setOrderId(String orderId) {
         head.put(ORDER_ID_KEY, orderId);
     }
 
@@ -79,6 +59,10 @@ public class Order extends AbstractObject {
 
     public void setOrderDescription(String orderDescription) {
         head.put("orderDescription", orderDescription);
+    }
+
+    public String getOrderDescription() {
+        return head.getString("orderDescription");
     }
 
     public void setReferer(@Nullable String referer) {
@@ -92,7 +76,7 @@ public class Order extends AbstractObject {
         products.stream()
                 .map(Product::makeCopy)
                 .forEach(product -> {
-                    JSONObject jsonObject = product.head;
+                    JSONObject jsonObject = product.getHead();
 
                     head.names().forEach(name -> {
                         String nameStr = (String) name;

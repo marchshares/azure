@@ -1,7 +1,7 @@
 package com.bars.orders.mongo;
 
 
-import com.bars.orders.json.Order;
+import com.bars.orders.order.Order;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.mongodb.MongoClient;

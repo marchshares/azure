@@ -1,7 +1,7 @@
 package com.bars.orders.http;
 
 import com.bars.orders.http.common.SimpleHttpClient;
-import com.bars.orders.json.Order;
+import com.bars.orders.order.Order;
 
 import static com.bars.orders.PropertiesHelper.getSystemProp;
 

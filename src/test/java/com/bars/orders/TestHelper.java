@@ -1,7 +1,6 @@
 package com.bars.orders;
 
 import com.google.common.collect.Maps;
-import com.microsoft.azure.functions.ExecutionContext;
 import com.microsoft.azure.functions.HttpRequestMessage;
 import com.microsoft.azure.functions.HttpResponseMessage;
 import com.microsoft.azure.functions.HttpStatus;
@@ -14,7 +13,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.logging.LogManager;
-import java.util.logging.Logger;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;

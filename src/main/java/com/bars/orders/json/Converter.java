@@ -15,7 +15,7 @@ public class Converter {
         arrayNames.add("options");
     }
 
-    public JSONObject bodyLineToJsonObject(String bodyLine) {
+    public static JSONObject bodyLineToJsonObject(String bodyLine) {
         JSONObject jsonObject = new JSONObject();
 
         String[] params = bodyLine.split("&");
@@ -34,7 +34,7 @@ public class Converter {
         return jsonObject;
     }
 
-    private void func(JSONObject jsonObject, String name, String value) {
+    private static void func(JSONObject jsonObject, String name, String value) {
         if (! name.contains("[")) {
             jsonObject.put(name, value);
         } else {
@@ -53,7 +53,7 @@ public class Converter {
         }
     }
 
-    private void convertArrays(JSONObject jsonObject) {
+    private static void convertArrays(JSONObject jsonObject) {
         jsonObject.names().forEach(nameObj -> {
             String name = (String) nameObj;
             Object value = jsonObject.get(name);
