@@ -18,6 +18,9 @@ public class ProductDescManager {
 
     public static final String NANOPRESSO_SERIES_NAME = "nanopresso";
 
+    public static final String NANOPRESSO_UNDEFINED_NAME = "Nanopresso X";
+    public static final String NANOPRESSO_UNDEFINED_SKU = "WCCN_X";
+
     private final Map<String, ProductDesc> mapSku2desc = Maps.newHashMap();
     private final Map<String, ProductDesc> mapSearchName2desc = Maps.newHashMap();
 
@@ -92,5 +95,15 @@ public class ProductDescManager {
         }
 
         return null;
+    }
+
+    public ProductDesc createUnknownNanopresso(String color) {
+        ProductDesc desc = new ProductDesc();
+
+        desc.setName(NANOPRESSO_UNDEFINED_NAME + " (" + color + ")");
+        desc.setSku(NANOPRESSO_UNDEFINED_SKU);
+        desc.setSeries(NANOPRESSO_SERIES_NAME);
+
+        return desc;
     }
 }

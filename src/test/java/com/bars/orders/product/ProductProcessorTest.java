@@ -142,5 +142,45 @@ public class ProductProcessorTest {
         assertEquals("WCCNMC", res.get(3).getSku());
     }
 
+    @Test
+    public void testSetWithNanopressoCase() {
+        JSONObject jsonObject = new JSONObject("{\n" +
+                "    \"amount\": \"10220\",\n" +
+                "    \"quantity\": \"1\",\n" +
+                "    \"price\": \"10220\",\n" +
+                "    \"name\": \"Nanopresso Set\",\n" +
+                "    \"options\": [\n" +
+                "     {\n" +
+                "      \"variant\": \"Elements, Journey, Tattoo + Чехол (в комментарии)\",\n" +
+                "      \"option\": \"Цвет\"\n" +
+                "     },\n" +
+                "     {\n" +
+                "      \"variant\": \"NS-адаптер+Nanovessel\",\n" +
+                "      \"option\": \"Аксессуар\"\n" +
+                "     },\n" +
+                "     {\n" +
+                "      \"variant\": \"M-Чехол (для NS-адаптера)\",\n" +
+                "      \"option\": \"Чехол\"\n" +
+                "     }\n" +
+                "    ],\n" +
+                "    \"sku\": \"WCCSET\"\n" +
+                "   }");
+
+        List<Product> res = processor.process(jsonObject);
+
+        assertEquals(4, res.size());
+
+        assertEquals("Nanopresso X (elements, journey, tattoo + чехол)", res.get(0).getName());
+        assertEquals("WCCN_X", res.get(0).getSku());
+
+        assertEquals("NS-адаптер", res.get(1).getName());
+        assertEquals("WCCNANS", res.get(1).getSku());
+
+        assertEquals("Nanovessel", res.get(2).getName());
+        assertEquals("WCCNNVSL", res.get(2).getSku());
+
+        assertEquals("M-Чехол", res.get(3).getName());
+        assertEquals("WCCNMC", res.get(3).getSku());
+    }
 
 }

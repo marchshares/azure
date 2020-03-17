@@ -84,15 +84,14 @@ public class SetSplitter {
                         case COLOR_OPTION_MARK:
                             productDesc = descManager.getNanopressoByColor(optionValue);
 
-                            if (productDesc != null) {
-                                result.add(setAsProduct.createMainSetComponent(productDesc));
-                                glogger.info(setAsProduct.info() + ": by " + optionType + "=" + optionValue + " added " + productDesc.info());
-                            } else {
-                                throw new RuntimeException(setAsProduct.info() + " Not found Nanopresso with " + optionType + "=" + optionValue);
+                            if (productDesc == null) {
+                                productDesc = descManager.createUnknownNanopresso(optionValue);
                             }
 
-                            return;
+                            result.add(setAsProduct.createMainSetComponent(productDesc));
+                            glogger.info(setAsProduct.info() + ": by " + optionType + "=" + optionValue + " added " + productDesc.info());
 
+                            return;
 
                         case ACCESSORY_OPTION_MARK:
                         case CASE_OPTION_MARK:
