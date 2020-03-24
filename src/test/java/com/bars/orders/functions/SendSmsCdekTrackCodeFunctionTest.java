@@ -62,9 +62,9 @@ public class SendSmsCdekTrackCodeFunctionTest {
             "Name: Анна\n" +
             "Phone: +7 (900) 500-9000\n" +
             "Email: xxx@gmail.com\n" +
-            "deliveryType: Доставка по России (мы свяжемся с вами для уточнение сроков и стоимости)\n" +
+            "DeliveryType: Доставка по России (мы свяжемся с вами для уточнение сроков и стоимости)\n" +
             "city: Екатеринбург\n" +
-            "deliveryAddress: ул.Та самая д 12\n" +
+            "DeliveryAddress: ул.Та самая д 12\n" +
             "comment: коммент\n" +
             "\n" +
             "\n" +

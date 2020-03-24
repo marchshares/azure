@@ -46,7 +46,7 @@ public class OrderProcessorTest {
     }
 
     public static Order createTestOrder() {
-        String decodedBody = "Form=Cart&Name=Имя Фамилия&Phone=+7 (999) 111-2233&Email=email@yandex.ru&deliveryType=Доставка курьером (Москва, Спб) 300 руб. = 300&city=Москва&deliveryAddress=адрес такой-то&comment=коммент&payment[sys]=none&payment[systranid]=0&payment[orderid]=1557604691&payment[products][0][name]=Wacaco Minipresso GR&payment[products][0][sku]=WCCMP&payment[products][0][quantity]=1&payment[products][0][amount]=4500&payment[products][0][price]=4500&payment[products][1][name]=Nanopresso Patrol Orange&payment[products][1][sku]=WCCN84&payment[products][1][quantity]=1&payment[products][1][amount]=5200&payment[products][1][price]=5200&payment[amount]=24450&formid=form42581206&formname=Cart";
+        String decodedBody = "Form=Cart&Name=Имя Фамилия&Phone=+7 (999) 111-2233&Email=email@yandex.ru&DeliveryType=Доставка курьером (Москва, Спб) 300 руб. = 300&city=Москва&DeliveryAddress=адрес такой-то&comment=коммент&payment[sys]=none&payment[systranid]=0&payment[orderid]=1557604691&payment[products][0][name]=Wacaco Minipresso GR&payment[products][0][sku]=WCCMP&payment[products][0][quantity]=1&payment[products][0][amount]=4500&payment[products][0][price]=4500&payment[products][1][name]=Nanopresso Patrol Orange&payment[products][1][sku]=WCCN84&payment[products][1][quantity]=1&payment[products][1][amount]=5200&payment[products][1][price]=5200&payment[amount]=24450&formid=form42581206&formname=Cart";
         JSONObject orderJson = Converter.bodyLineToJsonObject(decodedBody);
 
         Order testOrder = new Order(orderJson);
